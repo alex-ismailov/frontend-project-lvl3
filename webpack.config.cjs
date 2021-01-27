@@ -1,9 +1,10 @@
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 const PATHS = {
-  src: path.join(__dirname, './src'),
-  dist: path.join(__dirname, './dist'),
+  src: path.resolve(__dirname, './src'),
+  dist: path.resolve(__dirname, 'dist'),
   assets: 'assets/',
 };
 
