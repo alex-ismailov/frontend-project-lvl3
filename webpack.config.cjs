@@ -15,8 +15,18 @@ module.exports = {
     filename: 'index_bundle.js'
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: `${PATHS.src}/index.html`,
     }),
-  ]
+  ],
+  devServer: {
+    // contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 9000,
+    overlay: {
+      warnings: true,
+      errors: true,
+    },
+  },
 };
