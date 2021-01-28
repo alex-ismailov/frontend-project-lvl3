@@ -5,21 +5,24 @@ const webpack = require('webpack');
 const path = require('path');
 
 const PATHS = {
-  src: path.resolve(__dirname, './src'),
-  dist: path.resolve(__dirname, 'dist'),
+  src: path.resolve(__dirname, '../src'),
+  dist: path.resolve(__dirname, '../dist'),
   assets: 'assets/',
 };
 
 module.exports = {
   // target: process.env.NODE_ENV === "development" ? "web" : "browserslist",
-  target: 'web',
+  // target: 'web',
+  // externals: {
+  //   paths: PATHS,
+  // },
   entry: {
     main: PATHS.src,
   },
   output: {
     path: PATHS.dist,
     filename: '[name].js',
-    publicPath: '/',
+    // publicPath: '/',
   },
   module: {
     rules: [
@@ -54,24 +57,8 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
-    // TODO: Move to webpack.dev.conf.js !!! ***
-    // Site map is private
-    new webpack.SourceMapDevToolPlugin({
-      filename: '[file].map'
-    }),
-    // ***********************************
     new HtmlWebpackPlugin({
       template: `${PATHS.src}/index.html`,
     }),
   ],
-  
-  devServer: {
-    contentBase: PATHS.dist,
-    compress: true,
-    port: 9000,
-    overlay: {
-      warnings: true,
-      errors: true,
-    },
-  },
 };
