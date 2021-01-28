@@ -1,4 +1,4 @@
-import bar from './bar.js';
+import bar from './js/bar.js';
 import 'bootstrap';
 import './styles/main.scss';
 
