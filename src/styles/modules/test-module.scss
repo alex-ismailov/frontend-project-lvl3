@@ -7,7 +7,7 @@ $font-size: 20px;
     color: blue;
   }
 
-  p {
+  &__text {
     color: chocolate;
     font-size: $font-size;
   }
