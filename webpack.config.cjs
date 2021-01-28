@@ -11,6 +11,8 @@ const PATHS = {
 };
 
 module.exports = {
+  // target: process.env.NODE_ENV === "development" ? "web" : "browserslist",
+  target: 'web',
   entry: {
     main: PATHS.src,
   },
@@ -29,6 +31,12 @@ module.exports = {
             loader: 'css-loader',
             options: {
               sourceMap: true,
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: { sourceMap: true }
             },
           },
           {
