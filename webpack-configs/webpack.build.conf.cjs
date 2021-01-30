@@ -3,7 +3,6 @@ const baseWebpackConfig = require('./webpack.base.conf.cjs');
 
 const buildWebpackConfig = merge(baseWebpackConfig, {
   mode: 'production',
-  target: 'web',
   plugins: [],
 });
 
