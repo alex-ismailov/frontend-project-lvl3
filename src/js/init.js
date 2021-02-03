@@ -1,6 +1,7 @@
 import onChange from 'on-change';
 import * as yup from 'yup';
 import _ from 'lodash';
+import { renderInputText, renderInputClassName } from './view.js';
 
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
@@ -41,18 +42,15 @@ export default () => {
     console.log(`*** path: ${path}; value: ${value} ***`);
     switch (path) {
       case 'form.value':
-        input.value = watchedState.form.value;
+        renderInputText(watchedState, form);
         break;
-      case 'form.valid': {
-        if (!value) {
-          input.classList.add('is-invalid');
-          break;
-        }
-        input.classList.remove('is-invalid');
+      case 'form.valid':
+        renderInputClassName(watchedState, input);
         break;
-      }
       case 'form.errors':
-        // renderErrors()
+        // renderErrors();
+        // or it`s better
+        // renderFeedback();
         break;
       default:
         break;
