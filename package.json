@@ -56,6 +56,7 @@
   "dependencies": {
     "@popperjs/core": "^2.6.0",
     "bootstrap": "^5.0.0-beta1",
+    "lodash": "^4.17.20",
     "on-change": "^2.2.3",
     "yup": "^0.32.8"
   }
