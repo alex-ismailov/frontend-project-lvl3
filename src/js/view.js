@@ -1,12 +1,22 @@
-export const renderInputText = (watchedState, form) => {
-  const input = form.elements.url;
-  input.value = watchedState.form.value;
-};
+/* eslint no-param-reassign: 0 */
 
-export const renderInputClassName = (watchedState, input) => {
-  if (!watchedState.form.valid) {
+const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
+
+export const renderInput = (isValid, input) => {
+  if (!isValid) {
     input.classList.add('is-invalid');
     return;
   }
   input.classList.remove('is-invalid');
+  input.value = '';
+};
+
+export const renderError = (error, feedback) => {
+  if (!error) {
+    feedback.textContent = '';
+    feedback.classList.remove('text-danger');
+    return;
+  }
+  feedback.textContent = capitalizeFirstLetter(error);
+  feedback.classList.add('text-danger');
 };
