@@ -1,7 +1,6 @@
 import onChange from 'on-change';
 import * as yup from 'yup';
-import _ from 'lodash';
-import { renderInputText, renderInputClassName } from './view.js';
+import { renderInput, renderError } from './view.js';
 
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
@@ -11,10 +10,10 @@ const schema = yup.string().required().url();// надо уточнить это
 const validate = (field) => {
   try {
     schema.validateSync(field, { abortEarly: false });
-    return [];
+    return '';
   } catch (e) {
-    console.log('$%^ Here is red boarder $%^');
-    return e.errors;
+    const message = e.message.split(' ').slice(1).join(' ');
+    return message;
   }
 };
 
@@ -28,29 +27,23 @@ export default () => {
   const state = {
     form: {
       value: '',
-      state: true,
-      errors: [],
+      valid: true,
+      error: '',
     },
     news: [],
   };
 
   const form = document.getElementById('rssForm');
   const input = form.elements.url;
+  const feedback = document.querySelector('.feedback');
 
   const watchedState = onChange(state, (path, value) => {
-    console.log('#$% Model call view @#$');
-    console.log(`*** path: ${path}; value: ${value} ***`);
     switch (path) {
-      case 'form.value':
-        renderInputText(watchedState, form);
-        break;
       case 'form.valid':
-        renderInputClassName(watchedState, input);
+        renderInput(value, input);
         break;
-      case 'form.errors':
-        // renderErrors();
-        // or it`s better
-        // renderFeedback();
+      case 'form.error':
+        renderError(value, feedback);
         break;
       default:
         break;
@@ -65,17 +58,19 @@ export default () => {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    console.log('+++ submit event +++');
-    const errors = validate(watchedState.form.value);
-    if (_.isEmpty(errors)) {
-      /* TODO: записать новые данные */
-      watchedState.form.valid = true;
-      watchedState.form.value = '';
+    const error = validate(watchedState.form.value);
+    if (error) {
+      watchedState.form.valid = false;
+      watchedState.form.error = error;
       return;
     }
 
-    watchedState.form.valid = false;
-    watchedState.form.errors = errors;
+    /* TODO: записать новые данные */
+    // const data = watchedState.form.value;
+    // ********
+    watchedState.form.valid = true;
+    watchedState.form.error = '';
+    watchedState.form.value = '';
   });
   // ******
 };
