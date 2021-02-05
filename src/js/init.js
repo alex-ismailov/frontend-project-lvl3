@@ -9,26 +9,16 @@ import parse from './parser.js';
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
 
-const schema = yup.string().required().url('Must be valid url');// надо уточнить это пайплайн
+const schema = yup.string().required().url('Must be valid url');
 
 const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
   try {
     schema.validateSync(value, { abortEarly: false });
-    // console.log([...feeds]);
-    const isDouble = feeds.some((feed) => {
-      console.log(`feed.link: ${feed.link}; value: ${value}`);
-      return feed.link === value;
-    });
-    console.log(`isDouble: ${isDouble}`);
-    if (isDouble) {
-      console.log('Double');
-      return 'Rss already exists';
-    }
-    console.log('BOOM !!!');
-    return '';
+    return feeds.some((feed) => value.includes(feed.link))
+      ? 'Rss already exists'
+      : '';
   } catch (e) {
-    console.log(e);
     return e.message;
   }
 };
