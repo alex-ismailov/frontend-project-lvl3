@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: 0 */
+
 import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
@@ -74,12 +76,39 @@ const parse = (data) => {
   return feed;
 };
 
+const addNewRssFeed = (url, watchedState, submitButton) => {
+  axios.get(url, { timeout: 1000 })
+    .then((response) => {
+      console.log('$%^$%^$^%');
+      if (response.data.status.http_code === 404) {
+        watchedState.form.error = 'This source doesn\'t contain valid rss';
+        submitButton.disabled = false;
+        watchedState.form.processState = 'failed';
+        return;
+      }
+      const feedData = parse(response);
+      watchedState.feeds = [feedData.feed, ...watchedState.feeds];
+      watchedState.posts = [...feedData.posts, ...watchedState.posts];
+
+      watchedState.form.valid = true;
+      watchedState.form.error = '';
+      watchedState.form.value = '';
+      submitButton.disabled = false;
+      watchedState.form.processState = 'finished';
+    })
+    .catch((e) => {
+      watchedState.form.error = e.message;
+      submitButton.disabled = false;
+    });
+};
+
 // *** VIEW ***
 // look at src/js/view.js
 // ************
 
 // **********************************************************************
 export default () => {
+  console.log('Start !!!!');
   // имена состояний это причастия: ....
   // *** MODEL ***
   const state = {
@@ -108,7 +137,6 @@ export default () => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.processState': {
-        console.log(`is finished: ${value}`);
         if (value === 'finished') {
           input.value = '';
           break;
@@ -129,7 +157,6 @@ export default () => {
         console.log(value);
         break;
       }
-
       default:
         break;
     }
@@ -145,61 +172,12 @@ export default () => {
     e.preventDefault();
     const error = validate(watchedState);
     if (error) {
-      console.log('ERROR not valid url');
       watchedState.form.valid = false;
       watchedState.form.error = error;
       return;
     }
-
-    // sending stage
-    /* TODO: получить Фид */
     const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(watchedState.form.value)}`;
-    axios.get(urlWithAllOriginsProxy).then((response) => {
-      const feedData = parse(response);
-      console.log(feedData);
-      // добавить фид и посты в state
-      watchedState.feeds = [feedData.feed, ...watchedState.feeds];
-      // console.log(feedData.posts);
-      watchedState.posts = [...feedData.posts, ...watchedState.posts];
-
-      watchedState.form.valid = true;
-      watchedState.form.error = '';
-      watchedState.form.value = '';
-      submitButton.disabled = false;
-      watchedState.form.processState = 'finished';
-    });
-
+    addNewRssFeed(urlWithAllOriginsProxy, watchedState, submitButton);
     submitButton.disabled = true;
-
-    // ********
-
-    // watchedState.processState = 'sending';
-
-    // watchedState.form.valid = true;
-    // watchedState.form.error = '';
-    // watchedState.form.value = '';
   });
-
-  // form.addEventListener('submit', (e) => {
-  //   e.preventDefault();
-  //   const error = validate(watchedState.form.value);
-  //   console.log(error);
-  //   if (error) {
-  //     console.log('ERROR not valid url');
-  //     watchedState.form.valid = false;
-  //     watchedState.form.error = error;
-  //     return;
-  //   }
-
-  //   /* TODO: записать новые данные */
-  //   // const data = watchedState.form.value;
-  //   // ********
-  //   console.log('valid url :)');
-
-  //   watchedState.form.valid = true;
-  //   watchedState.form.error = '';
-  //   watchedState.form.value = '';
-
-  // });
-  // ******
 };
