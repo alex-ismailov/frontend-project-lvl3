@@ -3,33 +3,29 @@
 import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
-import _ from 'lodash';
 import { renderInput, renderError } from './view.js';
+import parse from './parser.js';
 
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
 
 const schema = yup.string().required().url('Must be valid url');// надо уточнить это пайплайн
 
-// const validate = (field) => {
-//   console.log(field);
-//   try {
-//     schema.validateSync(field, { abortEarly: false });
-//     return '';
-//   } catch (e) {
-//     const message = e.message.split(' ').slice(1).join(' ');
-//     return message;
-//   }
-// };
-
 const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
   try {
     schema.validateSync(value, { abortEarly: false });
-    if (feeds.some((feed) => feed.link === value)) {
+    // console.log([...feeds]);
+    const isDouble = feeds.some((feed) => {
+      console.log(`feed.link: ${feed.link}; value: ${value}`);
+      return feed.link === value;
+    });
+    console.log(`isDouble: ${isDouble}`);
+    if (isDouble) {
       console.log('Double');
       return 'Rss already exists';
     }
+    console.log('BOOM !!!');
     return '';
   } catch (e) {
     console.log(e);
@@ -37,49 +33,9 @@ const validate = (watchedState) => {
   }
 };
 
-const buildFeed = (feedXmlDocument) => {
-  const feedId = _.uniqueId();
-  const feedTitle = feedXmlDocument.querySelector('title').textContent;
-  const feedDescription = feedXmlDocument.querySelector('description').textContent;
-  const feedLink = feedXmlDocument.querySelector('link').textContent;
-  const items = feedXmlDocument.querySelectorAll('item');
-  const feedPosts = Array.from(items).map((item) => {
-    const postId = _.uniqueId();
-    const postTitle = item.querySelector('title').textContent;
-    const postDescription = item.querySelector('description').textContent;
-    const postLink = item.querySelector('link').textContent;
-    return {
-      post: postId,
-      feedId,
-      title: postTitle,
-      description: postDescription,
-      link: postLink,
-    };
-  });
-
-  return {
-    feed: {
-      id: feedId,
-      title: feedTitle,
-      description: feedDescription,
-      link: feedLink,
-    },
-    posts: feedPosts,
-  };
-};
-
-const parse = (data) => {
-  const parser = new DOMParser();
-  const feedXmlDocument = parser.parseFromString(data.data.contents, 'text/xml');
-  const feed = buildFeed(feedXmlDocument);
-
-  return feed;
-};
-
 const addNewRssFeed = (url, watchedState, submitButton) => {
   axios.get(url, { timeout: 1000 })
     .then((response) => {
-      console.log('$%^$%^$^%');
       if (response.data.status.http_code === 404) {
         watchedState.form.error = 'This source doesn\'t contain valid rss';
         submitButton.disabled = false;
@@ -95,9 +51,11 @@ const addNewRssFeed = (url, watchedState, submitButton) => {
       watchedState.form.value = '';
       submitButton.disabled = false;
       watchedState.form.processState = 'finished';
+      watchedState.form.processState = 'filling';
     })
     .catch((e) => {
       watchedState.form.error = e.message;
+      watchedState.form.processState = 'failed';
       submitButton.disabled = false;
     });
 };
@@ -118,14 +76,7 @@ export default () => {
       valid: true,
       error: '',
     },
-    feeds: [
-      // {
-      //   id: 1,
-      //   title: 'Feed 1',
-      //   description: 'Feed 1 description',
-      //   link: 'https://ru.hexlet.io/lessons.rss',
-      // },
-    ],
+    feeds: [],
     posts: [],
   };
 
@@ -136,7 +87,11 @@ export default () => {
 
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
+      case 'form.value':
+        console.log(value);
+        break;
       case 'form.processState': {
+        console.log(value);
         if (value === 'finished') {
           input.value = '';
           break;
