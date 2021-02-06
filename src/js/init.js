@@ -72,6 +72,7 @@ export default () => {
   const input = form.elements.url;
   const feedback = document.querySelector('.feedback');
   const submitButton = form.querySelector('button');
+  input.focus();
 
   const processStateHandler = (processState) => {
     switch (processState) {
@@ -80,15 +81,19 @@ export default () => {
         break;
       case 'failed':
         submitButton.disabled = false;
+        input.disabled = false;
+        input.focus();
         break;
       case 'sending':
         submitButton.disabled = true;
+        input.disabled = true;
         break;
       case 'finished':
-        input.value = '';
         submitButton.disabled = false;
+        input.disabled = false;
+        input.value = '';
+        input.focus();
         break;
-
       default:
         throw new Error(`Unknown process state: ${processState}`);
     }
@@ -96,9 +101,6 @@ export default () => {
 
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'form.value':
-        console.log(value);
-        break;
       case 'form.processState':
         processStateHandler(value);
         break;
@@ -131,6 +133,7 @@ export default () => {
     e.preventDefault();
     const error = validate(watchedState);
     if (error) {
+      watchedState.form.processState = 'failed';
       watchedState.form.valid = false;
       watchedState.form.error = error;
       return;
