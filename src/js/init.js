@@ -9,6 +9,7 @@ import parse from './parser.js';
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
 
+// *** utils ***
 const schema = yup.string().required().url('Must be valid url');
 
 const validate = (watchedState) => {
@@ -23,12 +24,11 @@ const validate = (watchedState) => {
   }
 };
 
-const addNewRssFeed = (url, watchedState, submitButton) => {
+const addNewRssFeed = (url, watchedState) => {
   axios.get(url, { timeout: 1000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
         watchedState.form.error = 'This source doesn\'t contain valid rss';
-        submitButton.disabled = false;
         watchedState.form.processState = 'failed';
         return;
       }
@@ -36,17 +36,15 @@ const addNewRssFeed = (url, watchedState, submitButton) => {
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
 
+      watchedState.form.processState = 'finished';
       watchedState.form.valid = true;
       watchedState.form.error = '';
       watchedState.form.value = '';
-      submitButton.disabled = false;
-      watchedState.form.processState = 'finished';
       watchedState.form.processState = 'filling';
     })
     .catch((e) => {
       watchedState.form.error = e.message;
       watchedState.form.processState = 'failed';
-      submitButton.disabled = false;
     });
 };
 
@@ -62,8 +60,8 @@ export default () => {
   const state = {
     form: {
       processState: 'filling', // sending, finished || failed
-      value: '',
       valid: true,
+      value: '',
       error: '',
     },
     feeds: [],
@@ -75,19 +73,35 @@ export default () => {
   const feedback = document.querySelector('.feedback');
   const submitButton = form.querySelector('button');
 
+  const processStateHandler = (processState) => {
+    switch (processState) {
+      case 'filling':
+        submitButton.disabled = false;
+        break;
+      case 'failed':
+        submitButton.disabled = false;
+        break;
+      case 'sending':
+        submitButton.disabled = true;
+        break;
+      case 'finished':
+        input.value = '';
+        submitButton.disabled = false;
+        break;
+
+      default:
+        throw new Error(`Unknown process state: ${processState}`);
+    }
+  };
+
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.value':
         console.log(value);
         break;
-      case 'form.processState': {
-        console.log(value);
-        if (value === 'finished') {
-          input.value = '';
-          break;
-        }
+      case 'form.processState':
+        processStateHandler(value);
         break;
-      }
       case 'form.valid':
         renderInput(value, input);
         break;
@@ -122,7 +136,7 @@ export default () => {
       return;
     }
     const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(watchedState.form.value)}`;
-    addNewRssFeed(urlWithAllOriginsProxy, watchedState, submitButton);
-    submitButton.disabled = true;
+    addNewRssFeed(urlWithAllOriginsProxy, watchedState);
+    watchedState.form.processState = 'sending';
   });
 };
