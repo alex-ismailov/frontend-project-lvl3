@@ -1,6 +1,6 @@
 /* eslint no-param-reassign: 0 */
 
-export const renderInput = (isValid, input) => {
+export const renderInputError = (isValid, input) => {
   if (!isValid) {
     input.classList.add('is-invalid');
     return;
@@ -17,3 +17,7 @@ export const renderError = (error, feedback) => {
   feedback.textContent = error;
   feedback.classList.add('text-danger');
 };
+
+export const renderFeeds = () => {};
+
+export const renderPosts = () => {};
