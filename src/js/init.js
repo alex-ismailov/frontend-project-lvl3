@@ -3,7 +3,9 @@
 import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
-import { renderInput, renderError } from './view.js';
+import {
+  renderInputError, renderError, renderFeeds, renderPosts,
+} from './view.js';
 import parse from './parser.js';
 
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
@@ -105,17 +107,19 @@ export default () => {
         processStateHandler(value);
         break;
       case 'form.valid':
-        renderInput(value, input);
+        renderInputError(value, input);
         break;
       case 'form.error':
         renderError(value, feedback);
         break;
       case 'feeds': {
         console.log(value);
+        renderFeeds();
         break;
       }
       case 'posts': {
         console.log(value);
+        renderPosts();
         break;
       }
       default:
