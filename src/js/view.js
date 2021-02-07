@@ -8,14 +8,16 @@ export const renderInputError = (isValid, input) => {
   input.classList.remove('is-invalid');
 };
 
-export const renderError = (error, feedback) => {
-  if (!error) {
-    feedback.textContent = '';
-    feedback.classList.remove('text-danger');
+export const renderFeedback = (error, element) => {
+  if (error) {
+    element.textContent = error;
+    element.classList.add('text-danger');
     return;
   }
-  feedback.textContent = error;
-  feedback.classList.add('text-danger');
+  console.log('success');
+  element.classList.remove('text-danger');
+  element.textContent = 'Success но это надо уточнить!';
+  element.classList.add('text-success');
 };
 
 export const renderFeeds = () => {};
