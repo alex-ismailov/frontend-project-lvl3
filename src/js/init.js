@@ -4,7 +4,7 @@ import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import {
-  renderInputError, renderError, renderFeeds, renderPosts,
+  renderInputError, renderFeeds, renderFeedback,
 } from './view.js';
 import parse from './parser.js';
 
@@ -27,7 +27,7 @@ const validate = (watchedState) => {
 };
 
 const addNewRssFeed = (url, watchedState) => {
-  axios.get(url, { timeout: 1000 })
+  axios.get(url, { timeout: 5000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
         watchedState.form.error = 'This source doesn\'t contain valid rss';
@@ -72,9 +72,10 @@ export default () => {
 
   const form = document.getElementById('rssForm');
   const input = form.elements.url;
+  input.focus();
   const feedback = document.querySelector('.feedback');
   const submitButton = form.querySelector('button');
-  input.focus();
+  const feedsBlock = document.querySelector('.feeds');
 
   const processStateHandler = (processState) => {
     switch (processState) {
@@ -91,6 +92,7 @@ export default () => {
         input.disabled = true;
         break;
       case 'finished':
+        renderFeedback('', feedback); // <= передавать '' не оч. хорошо, переделать
         submitButton.disabled = false;
         input.disabled = false;
         input.value = '';
@@ -110,18 +112,17 @@ export default () => {
         renderInputError(value, input);
         break;
       case 'form.error':
-        renderError(value, feedback);
+        renderFeedback(value, feedback);
         break;
       case 'feeds': {
-        console.log(value);
-        renderFeeds();
+        renderFeeds(value, feedsBlock); // <= Feeds
         break;
       }
-      case 'posts': {
-        console.log(value);
-        renderPosts();
-        break;
-      }
+      // case 'posts': {
+      //   console.log(value);
+      //   renderPosts(value); // <= Posts
+      //   break;
+      // }
       default:
         break;
     }
