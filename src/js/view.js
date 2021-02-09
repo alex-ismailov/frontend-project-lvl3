@@ -141,9 +141,9 @@ export const renderPosts = (posts, postsBlock) => {
     // button.data.id =
     button.setAttribute('data-id', post.id);
     // button.data.toggle =
-    button.setAttribute('data-toggle', 'modal');
+    button.setAttribute('data-bs-toggle', 'modal');
     // button.data.target =
-    button.setAttribute('data-target', '#modal');
+    button.setAttribute('data-bs-target', '#modal');
     button.textContent = 'Preview';
 
     item.append(link, button);
