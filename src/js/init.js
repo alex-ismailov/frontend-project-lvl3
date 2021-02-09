@@ -4,7 +4,7 @@ import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import {
-  renderInputError, renderFeeds, renderFeedback, renderPosts,
+  renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal,
 } from './view.js';
 import parse from './parser.js';
 
@@ -68,6 +68,9 @@ export default () => {
     },
     feeds: [],
     posts: [],
+    modal: {
+      currentPostId: null,
+    },
   };
 
   const form = document.getElementById('rssForm');
@@ -116,11 +119,23 @@ export default () => {
         renderFeedback(value, feedback);
         break;
       case 'feeds':
-        renderFeeds(value, feedsBlock); // <= Feeds
+        renderFeeds(value, feedsBlock);
         break;
       case 'posts':
-        renderPosts(value, postsBlock); // <= Posts
+        // я прокидываю watchedState.modal через view, потому что
+        // во время рендеринга постов renderPosts динмачески создает
+        // новые контроллеры для кнопок preview, которые в свою очередь тоже
+        // должны как-то иметь доступ к модели, чтобы устанавливать id
+        // текущего активнога поста для модального окна.
+        // Не уверен можно ли прокидывать модель через view для динам.
+        // создаваемого контроллера.
+        renderPosts(value, watchedState.modal, postsBlock);
         break;
+      case 'modal.currentPostId': {
+        const post = watchedState.posts.find(({ id }) => id === value);
+        addDataToModal(post);
+        break;
+      }
       default:
         break;
     }
