@@ -112,7 +112,7 @@ export const renderFeeds = (feeds, feedsBlock) => {
   });
 };
 
-export const renderPosts = (posts, postsBlock) => {
+export const renderPosts = (posts, modalState, postsBlock) => {
   if (!postsBlock.hasChildNodes()) {
     addTitle('Posts', postsBlock);
     addItemsContainer(postsBlock);
@@ -120,31 +120,28 @@ export const renderPosts = (posts, postsBlock) => {
   const postItemsContainer = postsBlock.querySelector('.list-group');
   postItemsContainer.innerHTML = '';
   posts.forEach((post) => {
-    console.log(post);
     const item = document.createElement('li');
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
     const link = document.createElement('a');
-    link.classList.add('fw-bold'); // <= TODO
-    link.href = post.link; // <= TODO
-    // data-id = 2 // TODO
-    // target = '_blanck' // TODO
-    // rel = ??? // TODO
+    link.classList.add('fw-bold');
+    link.href = post.link;
     link.setAttribute('data-id', post.id);
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
     link.textContent = post.title;
 
     const button = document.createElement('button');
-    // button.type = '???'; // <= TODO
     button.setAttribute('type', 'button');
-    button.classList.add('btn', 'btn-primary', 'btn-sm'); // <= TODO
-    // button.data.id =
+    button.classList.add('btn', 'btn-primary', 'btn-sm');
     button.setAttribute('data-id', post.id);
-    // button.data.toggle =
     button.setAttribute('data-bs-toggle', 'modal');
-    // button.data.target =
     button.setAttribute('data-bs-target', '#modal');
     button.textContent = 'Preview';
+
+    // Динамически создаваемый контроллер
+    button.addEventListener('click', (e) => {
+      modalState.currentPostId = e.target.dataset.id;
+    });
 
     item.append(link, button);
     postItemsContainer.append(item);
