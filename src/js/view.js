@@ -147,3 +147,15 @@ export const renderPosts = (posts, modalState, postsBlock) => {
     postItemsContainer.append(item);
   });
 };
+
+export const addDataToModal = (postData) => {
+  const modalWindow = document.querySelector('#modal');
+  const modalWindowTitle = modalWindow.querySelector('.modal-title');
+  const modalWindowBody = modalWindow.querySelector('.modal-body');
+  const modalWindowLink = modalWindow.querySelector('.full-article');
+
+  const { title, description, link } = postData;
+  modalWindowTitle.textContent = title;
+  modalWindowBody.textContent = description;
+  modalWindowLink.href = link;
+};
