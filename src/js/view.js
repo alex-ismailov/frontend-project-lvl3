@@ -124,7 +124,7 @@ export const renderPosts = (posts, postsBlock) => {
     const item = document.createElement('li');
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
     const link = document.createElement('a');
-    link.classList.add('font-weight-normal'); // <= TODO
+    link.classList.add('fw-bold'); // <= TODO
     link.href = post.link; // <= TODO
     // data-id = 2 // TODO
     // target = '_blanck' // TODO
@@ -132,7 +132,7 @@ export const renderPosts = (posts, postsBlock) => {
     link.setAttribute('data-id', post.id);
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
-    link.textContent = post.description;
+    link.textContent = post.title;
 
     const button = document.createElement('button');
     // button.type = '???'; // <= TODO
