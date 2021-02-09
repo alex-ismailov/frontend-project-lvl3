@@ -13,7 +13,7 @@ const buildFeed = (feedXmlDocument) => {
     const postDescription = item.querySelector('description').textContent;
     const postLink = item.querySelector('link').textContent;
     return {
-      post: postId,
+      id: postId,
       feedId,
       title: postTitle,
       description: postDescription,
