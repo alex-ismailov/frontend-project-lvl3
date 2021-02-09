@@ -4,7 +4,7 @@ import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import {
-  renderInputError, renderFeeds, renderFeedback,
+  renderInputError, renderFeeds, renderFeedback, renderPosts,
 } from './view.js';
 import parse from './parser.js';
 
@@ -76,6 +76,7 @@ export default () => {
   const feedback = document.querySelector('.feedback');
   const submitButton = form.querySelector('button');
   const feedsBlock = document.querySelector('.feeds');
+  const postsBlock = document.querySelector('.posts');
 
   const processStateHandler = (processState) => {
     switch (processState) {
@@ -114,15 +115,12 @@ export default () => {
       case 'form.error':
         renderFeedback(value, feedback);
         break;
-      case 'feeds': {
+      case 'feeds':
         renderFeeds(value, feedsBlock); // <= Feeds
         break;
-      }
-      // case 'posts': {
-      //   console.log(value);
-      //   renderPosts(value); // <= Posts
-      //   break;
-      // }
+      case 'posts':
+        renderPosts(value, postsBlock); // <= Posts
+        break;
       default:
         break;
     }
