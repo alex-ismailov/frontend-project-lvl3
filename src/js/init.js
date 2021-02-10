@@ -3,23 +3,31 @@
 import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
+import i18next from 'i18next';
 import {
   renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal,
 } from './view.js';
 import parse from './parser.js';
+import resources from './locales/index.js';
 
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
 
+i18next.init({
+  lng: 'en',
+  debug: true,
+  resources,
+});
+
 // *** utils ***
-const schema = yup.string().required().url('Must be valid url');
+const schema = yup.string().required().url(i18next.t('errors.notValidUrl'));
 
 const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
   try {
     schema.validateSync(value, { abortEarly: false });
     return feeds.some((feed) => feed.link === value)
-      ? 'Rss already exists'
+      ? i18next.t('errors.rssExists')
       : '';
   } catch (e) {
     return e.message;
@@ -28,18 +36,17 @@ const validate = (watchedState) => {
 
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
-
   const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(feedUrl)}`;
   axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
-        throw new Error('This source doesn\'t contain valid rss');
+        throw new Error(i18next.t('errors.notValidRss'));
       }
       if (!response.data.contents) {
-        throw new Error('Request failed. No data');
+        throw new Error(i18next.t('errors.noData'));
       }
       if (response.data.status.content_type.includes('text/html')) {
-        throw new Error('Unknown RSS feed format');
+        throw new Error(i18next.t('errors.notValidRssFormat'));
       }
       const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
@@ -103,14 +110,14 @@ export default () => {
         input.disabled = true;
         break;
       case 'finished':
-        renderFeedback('', feedback); // <= передавать '' не оч. хорошо, переделать
+        renderFeedback('success', feedback);
         submitButton.disabled = false;
         input.disabled = false;
         input.value = '';
         input.focus();
         break;
       default:
-        throw new Error(`Unknown process state: ${processState}`);
+        throw new Error(i18next.t('unknownProcessState', { processState }));
     }
   };
 
@@ -163,8 +170,6 @@ export default () => {
       watchedState.form.error = error;
       return;
     }
-    // const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(watchedState.form.value)}`;
-    // addNewRssFeed(urlWithAllOriginsProxy, watchedState);
     addNewRssFeed(watchedState);
     watchedState.form.processState = 'sending';
   });
