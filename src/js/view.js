@@ -1,5 +1,7 @@
 /* eslint no-param-reassign: 0 */
 
+import i18next from 'i18next';
+
 export const renderInputError = (isValid, input) => {
   if (!isValid) {
     input.classList.add('is-invalid');
@@ -8,14 +10,14 @@ export const renderInputError = (isValid, input) => {
   input.classList.remove('is-invalid');
 };
 
-export const renderFeedback = (error, element) => {
-  if (error) {
-    element.textContent = error;
+export const renderFeedback = (message, element) => {
+  if (message !== 'success') {
+    element.textContent = message;
     element.classList.add('text-danger');
     return;
   }
   element.classList.remove('text-danger');
-  element.textContent = 'Rss has been loaded';
+  element.textContent = i18next.t(message);
   element.classList.add('text-success');
 };
 
