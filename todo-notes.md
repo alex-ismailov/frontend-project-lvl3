@@ -13,7 +13,6 @@ html тегами
 * Не отбражается крестик в правом верх.углу в модальном окне
 * 
 
-
 ## Фиды
 
 каталог Rss фидов:
@@ -31,6 +30,8 @@ https://www.bbc.co.uk/news/10628494
 
 нечитаемый текст во view, видимо проблема с кодировкой:
 http://www.liveinternet.ru/users/marshag/rss/
+https://bonds.finam.ru/news/today/rss.asp
+https://bonds.finam.ru/comments/today/rss.asp
 
 Нет description в модальном окне:
 http://www.1prime.ru/export/rss2/index.xml
@@ -42,3 +43,11 @@ https://www.finam.ru/international/imdaily/rsspoint
 
 descript содержит спец код спецсимвола:
 http://feeds.feedburner.com/istorizru
+
+html в description модального окна
+Список RSS каналов Finam fm
+https://www.finam.ru/analysis/conews/rsspoint
+https://www.finam.ru/analysis/nslent/rsspoint
+https://www.finam.ru/analysis/forecasts/rsspoint
+https://www.finam.ru/international/advanced/rsspoint
+https://www.finam.ru/international/imdaily/rsspoint
