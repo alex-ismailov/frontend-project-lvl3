@@ -18,7 +18,7 @@ const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
   try {
     schema.validateSync(value, { abortEarly: false });
-    return feeds.some((feed) => value.includes(feed.link))
+    return feeds.some((feed) => feed.link === value)
       ? 'Rss already exists'
       : '';
   } catch (e) {
@@ -26,15 +26,18 @@ const validate = (watchedState) => {
   }
 };
 
-const addNewRssFeed = (url, watchedState) => {
-  axios.get(url, { timeout: 5000 })
+const addNewRssFeed = (watchedState) => {
+  const { form: { value: feedUrl } } = watchedState;
+
+  const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(feedUrl)}`;
+  axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
         watchedState.form.error = 'This source doesn\'t contain valid rss';
         watchedState.form.processState = 'failed';
         return;
       }
-      const feedData = parse(response);
+      const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
 
@@ -156,8 +159,9 @@ export default () => {
       watchedState.form.error = error;
       return;
     }
-    const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(watchedState.form.value)}`;
-    addNewRssFeed(urlWithAllOriginsProxy, watchedState);
+    // const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(watchedState.form.value)}`;
+    // addNewRssFeed(urlWithAllOriginsProxy, watchedState);
+    addNewRssFeed(watchedState);
     watchedState.form.processState = 'sending';
   });
 };
