@@ -33,14 +33,13 @@ const addNewRssFeed = (watchedState) => {
   axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
-        watchedState.form.error = 'This source doesn\'t contain valid rss';
-        watchedState.form.processState = 'failed';
-        return;
+        throw new Error('This source doesn\'t contain valid rss');
       }
       if (!response.data.contents) {
-        watchedState.form.error = 'Request failed. No data';
-        watchedState.form.processState = 'failed';
-        return;
+        throw new Error('Request failed. No data');
+      }
+      if (response.data.status.content_type.includes('text/html')) {
+        throw new Error('Unknown RSS feed format');
       }
       const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
