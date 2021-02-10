@@ -37,6 +37,11 @@ const addNewRssFeed = (watchedState) => {
         watchedState.form.processState = 'failed';
         return;
       }
+      if (!response.data.contents) {
+        watchedState.form.error = 'Request failed. No data';
+        watchedState.form.processState = 'failed';
+        return;
+      }
       const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
