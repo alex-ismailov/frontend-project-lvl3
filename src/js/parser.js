@@ -1,11 +1,9 @@
 import _ from 'lodash';
 
-const buildFeed = (feedXmlDocument) => {
-  console.log(feedXmlDocument);
+const buildFeed = (feedXmlDocument, feedUrl) => {
   const feedId = _.uniqueId();
   const feedTitle = feedXmlDocument.querySelector('title').textContent;
   const feedDescription = feedXmlDocument.querySelector('description').textContent;
-  const feedLink = feedXmlDocument.querySelector('link').textContent;
   const items = feedXmlDocument.querySelectorAll('item');
   const feedPosts = Array.from(items).map((item) => {
     const postId = _.uniqueId();
@@ -26,16 +24,16 @@ const buildFeed = (feedXmlDocument) => {
       id: feedId,
       title: feedTitle,
       description: feedDescription,
-      link: feedLink,
+      link: feedUrl,
     },
     posts: feedPosts,
   };
 };
 
-export default (data) => {
+export default (data, feedUrl) => {
   const parser = new DOMParser();
   const feedXmlDocument = parser.parseFromString(data.data.contents, 'text/xml');
-  const feed = buildFeed(feedXmlDocument);
+  const feed = buildFeed(feedXmlDocument, feedUrl);
 
   return feed;
 };
