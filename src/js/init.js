@@ -20,14 +20,20 @@ i18next.init({
 });
 
 // *** utils ***
-const schema = yup.string().required().url(i18next.t('errors.notValidUrl'));
+yup.setLocale({
+  string: {
+    url: i18next.t('errors.notValidUrl'),
+  },
+});
+
+const schema = yup.string().required().url();
 
 const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
   try {
     schema.validateSync(value, { abortEarly: false });
     return feeds.some((feed) => feed.link === value)
-      ? i18next.t('errors.rssExists')
+      ? i18next.t('errors.feedExists')
       : '';
   } catch (e) {
     return e.message;
