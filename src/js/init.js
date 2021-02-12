@@ -95,11 +95,19 @@ const watchPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState;
 
-  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link)));
+  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link))
+    .then((v) => ({ result: 'success', value: v }))
+    .catch((e) => ({ result: 'error', error: e })));
+
   const promise = Promise.all(promises);
   return promise.then((responses) => {
     responses.forEach((response) => {
-      const rawData = response.data.contents;
+      if (response.result === 'error') {
+        // TODO: надо как-то обработать этот кейс
+        console.log(response.error);
+        return;
+      }
+      const rawData = response.value.data.contents;
       const parser = new DOMParser();
       const feedXmlDocument = parser.parseFromString(rawData, 'text/xml');
       const items = feedXmlDocument.querySelectorAll('item');
