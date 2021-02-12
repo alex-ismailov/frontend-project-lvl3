@@ -42,7 +42,7 @@ const validate = (watchedState) => {
 
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
-  const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(feedUrl)}`;
+  const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(feedUrl)}`;
   axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
     .then((response) => {
       if (response.data.status.http_code === 404) {
@@ -73,6 +73,36 @@ const addNewRssFeed = (watchedState) => {
 // *** VIEW ***
 // look at src/js/view.js
 // ************
+
+// контроллер демон, запускается один раз на этапе инициализации приложения
+// const watchPosts = (watchedState) => {
+//   const { feeds, posts } = watchedState;
+//   const feedLinks = feeds.map((feed) => feed.link);
+//   feedLinks.forEach((feedLink) => {
+//     console.log(feedLink);
+//   });
+// };
+
+// собрать linkи из фидов
+// скачать посты
+// вывести посты
+// повторить тоже самое через 5 сек
+const watchPosts = (watchedState, timerId) => {
+  console.log('*** watchPosts start ***');
+  clearTimeout(timerId);
+  const { feeds } = watchedState;
+
+  const feedLinks = feeds.map((feed) => feed.link);
+  feedLinks.forEach((feedLink) => {
+    const linkWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(feedLink)}`;
+    axios.get(linkWithAllOriginsProxy, { timeout: 5000 }).then((response) => {
+      const feedData = parse(response, feedLink);
+      console.log(feedData.posts);
+    });
+  });
+
+  const newTimerId = setTimeout(() => watchPosts(watchedState, newTimerId), 2000);
+};
 
 // **********************************************************************
 export default () => {
@@ -142,13 +172,13 @@ export default () => {
         renderFeeds(value, feedsBlock);
         break;
       case 'posts':
-        // я прокидываю watchedState.modal через view, потому что
-        // во время рендеринга постов renderPosts динмачески создает
-        // новые контроллеры для кнопок preview, которые в свою очередь тоже
-        // должны как-то иметь доступ к модели, чтобы устанавливать id
-        // текущего активнога поста для модального окна.
-        // Не уверен можно ли прокидывать модель через view для динам.
-        // создаваемого контроллера.
+        /*  я прокидываю watchedState.modal через view, потому что
+        во время рендеринга постов renderPosts динмачески создает
+        новые контроллеры для кнопок preview, которые в свою очередь тоже
+        должны как-то иметь доступ к модели, чтобы устанавливать id
+        текущего активнога поста для модального окна.
+        Не уверен можно ли прокидывать модель через view для динам.
+        создаваемого контроллера. */
         renderPosts(value, watchedState.modal, postsBlock);
         break;
       case 'modal.currentPostId': {
@@ -179,4 +209,6 @@ export default () => {
     addNewRssFeed(watchedState);
     watchedState.form.processState = 'sending';
   });
+
+  const timerId = setTimeout(() => watchPosts(watchedState, timerId), 2000);
 };
