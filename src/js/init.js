@@ -42,6 +42,7 @@ const validate = (watchedState) => {
 
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
+  // urlWithAllOriginsProxy строку надо собирать в отдельной функции ! Переделать
   const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(feedUrl)}`;
   axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
     .then((response) => {
@@ -87,21 +88,28 @@ const addNewRssFeed = (watchedState) => {
 // скачать посты
 // вывести посты
 // повторить тоже самое через 5 сек
+const buildAllOriginsUrl = (url) => `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`;
+
 const watchPosts = (watchedState, timerId) => {
   console.log('*** watchPosts start ***');
   clearTimeout(timerId);
   const { feeds } = watchedState;
 
-  const feedLinks = feeds.map((feed) => feed.link);
-  feedLinks.forEach((feedLink) => {
-    const linkWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(feedLink)}`;
-    axios.get(linkWithAllOriginsProxy, { timeout: 5000 }).then((response) => {
-      const feedData = parse(response, feedLink);
-      console.log(feedData.posts);
+  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link)));
+  const promise = Promise.all(promises);
+  return promise.then((responses) => {
+    responses.forEach((response) => {
+      const rawData = response.data.contents;
+      const parser = new DOMParser();
+      const feedXmlDocument = parser.parseFromString(rawData, 'text/xml');
+      const items = feedXmlDocument.querySelectorAll('item');
+      items.forEach((item) => {
+        const titleText = item.querySelector('title').textContent;
+        console.log(titleText);
+      });
     });
+    const newTimerId = setTimeout(() => watchPosts(watchedState, newTimerId), 2000);
   });
-
-  const newTimerId = setTimeout(() => watchPosts(watchedState, newTimerId), 2000);
 };
 
 // **********************************************************************
