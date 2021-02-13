@@ -61,10 +61,10 @@ const addNewRssFeed = (watchedState) => {
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
 
-      watchedState.form.processState = 'finished';
       watchedState.form.valid = true;
       watchedState.form.error = '';
       watchedState.form.value = '';
+      watchedState.form.processState = 'finished';
       watchedState.form.processState = 'filling';
     })
     .catch((e) => {
