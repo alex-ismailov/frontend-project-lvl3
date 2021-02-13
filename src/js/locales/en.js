@@ -9,5 +9,6 @@ export default {
       unknownProcessState: 'Unknown process state: {{processState}}',
     },
     success: 'Rss has been loaded',
+    preview: 'Preview',
   },
 };
