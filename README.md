@@ -1,6 +1,6 @@
 # RSS aggregator
 
-[![rss-aggregator](https://github.com/alex-ismailov/git-imgs/blob/master/rss-agg-filled-500x281.png)](https://github.com/alex-ismailov/frontend-project-lvl3)
+[![rss-aggregator](https://github.com/alex-ismailov/git-imgs/blob/master/rss-agg-filled2-500x281.png)](https://github.com/alex-ismailov/frontend-project-lvl3)
 
 [![Actions Status](https://github.com/alex-ismailov/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/alex-ismailov/frontend-project-lvl3/actions)
 [![Github-Actions](https://github.com/alex-ismailov/frontend-project-lvl3/workflows/Node%20CI/badge.svg)](https://github.com/alex-ismailov/frontend-project-lvl3/actions)
