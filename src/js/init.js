@@ -6,7 +6,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import { isEmpty, differenceBy } from 'lodash';
 import {
-  renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal,
+  renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal, renderViewedPost,
 } from './view.js';
 import parse from './parser.js';
 import resources from './locales/index.js';
@@ -57,6 +57,8 @@ const addNewRssFeed = (watchedState) => {
       if (response.data.status.content_type.includes('text/html')) {
         throw new Error(i18next.t('errors.notValidRssFormat'));
       }
+      // Переделать на
+      // const feedData = parse(response.data, feedUrl);
       const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
@@ -119,6 +121,10 @@ export default () => {
     modal: {
       currentPostId: null,
     },
+    uiState: {
+      currentViewedPostId: null,
+      viewedPostsIds: new Set(),
+    },
   };
 
   const form = document.getElementById('rssForm');
@@ -177,13 +183,23 @@ export default () => {
         текущего активнога поста для модального окна.
         Не уверен можно ли прокидывать модель через view для динам.
         создаваемого контроллера. */
-        renderPosts(value, watchedState.modal, postsBlock);
+        renderPosts(value, watchedState, postsBlock);
         break;
       case 'modal.currentPostId': {
         const post = watchedState.posts.find(({ id }) => id === value);
         addDataToModal(post);
         break;
       }
+      case 'uiState.currentViewedPostId':
+        // TODO:
+        console.log(`uiState.currentViewedPostId: ${value}`);
+        renderViewedPost(value);
+        break;
+      case 'uiState.viewedPostsIds':
+        // TODO:
+        console.log(`viewed post id: ${value}`);
+        break;
+
       default:
         break;
     }
