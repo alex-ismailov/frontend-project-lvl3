@@ -129,7 +129,7 @@ export default () => {
   const feedsBlock = document.querySelector('.feeds');
   const postsBlock = document.querySelector('.posts');
 
-  const processStateHandler = (processState) => {
+  const handleProcessState = (processState) => {
     switch (processState) {
       case 'filling':
         submitButton.disabled = false;
@@ -158,7 +158,7 @@ export default () => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.processState':
-        processStateHandler(value);
+        handleProcessState(value);
         break;
       case 'form.valid':
         renderInputError(value, input);
