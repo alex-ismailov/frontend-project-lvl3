@@ -55,7 +55,7 @@ export const renderFeeds = (feeds, feedsBlock) => {
   });
 };
 
-export const renderPosts = (posts, modalState, postsBlock) => {
+export const renderPosts = (posts, watchedState, postsBlock) => {
   if (!postsBlock.hasChildNodes()) {
     addTitle('Posts', postsBlock);
     addItemsContainer(postsBlock);
@@ -67,12 +67,20 @@ export const renderPosts = (posts, modalState, postsBlock) => {
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
     const link = document.createElement('a');
-    link.classList.add('fw-bold', 'text-decoration-none');
+    const fontWeight = watchedState.uiState.viewedPostsIds.has(post.id)
+      ? 'fw-normal'
+      : 'fw-bold';
+    link.classList.add(fontWeight, 'text-decoration-none');
     link.href = post.link;
     link.setAttribute('data-id', post.id);
     link.setAttribute('target', '_blank');
     link.setAttribute('rel', 'noopener noreferrer');
     link.textContent = post.title;
+    link.addEventListener('click', (e) => {
+      const { target: { dataset: { id } } } = e;
+      watchedState.uiState.currentViewedPostId = id;
+      watchedState.uiState.viewedPostsIds.add(id);
+    });
 
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
@@ -81,14 +89,22 @@ export const renderPosts = (posts, modalState, postsBlock) => {
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
     button.textContent = i18next.t('preview');
-
     button.addEventListener('click', (e) => {
-      modalState.currentPostId = e.target.dataset.id;
+      const { target: { dataset: { id } } } = e;
+      watchedState.modal.currentPostId = id;
+      watchedState.uiState.currentViewedPostId = id;
+      watchedState.uiState.viewedPostsIds.add(id);
     });
 
     item.append(link, button);
     postItemsContainer.append(item);
   });
+};
+
+export const renderViewedPost = (id) => {
+  const post = document.querySelector(`[data-id="${id}"]`);
+  post.classList.remove('fw-bold');
+  post.classList.add('fw-normal');
 };
 
 export const addDataToModal = (postData) => {
