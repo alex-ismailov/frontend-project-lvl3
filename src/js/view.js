@@ -67,7 +67,7 @@ export const renderPosts = (posts, modalState, postsBlock) => {
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
     const link = document.createElement('a');
-    link.classList.add('fw-bold');
+    link.classList.add('fw-bold', 'text-decoration-none');
     link.href = post.link;
     link.setAttribute('data-id', post.id);
     link.setAttribute('target', '_blank');
