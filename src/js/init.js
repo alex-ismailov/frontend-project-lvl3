@@ -4,6 +4,7 @@ import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import i18next from 'i18next';
+import { isEmpty, differenceBy } from 'lodash';
 import {
   renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal,
 } from './view.js';
@@ -13,13 +14,13 @@ import resources from './locales/index.js';
 // *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
 // ********************************************************
 
+// *** utils ***
 i18next.init({
   lng: 'en',
   debug: true,
   resources,
 });
 
-// *** utils ***
 yup.setLocale({
   string: {
     url: i18next.t('errors.notValidUrl'),
@@ -27,6 +28,9 @@ yup.setLocale({
 });
 
 const schema = yup.string().required().url();
+const TIMEOUT = 5000; // ms
+const DELAY = 5000; // ms
+const buildAllOriginsUrl = (url) => `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`;
 
 const validate = (watchedState) => {
   const { form: { value }, feeds } = watchedState;
@@ -42,9 +46,7 @@ const validate = (watchedState) => {
 
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
-  // urlWithAllOriginsProxy строку надо собирать в отдельной функции ! Переделать
-  const urlWithAllOriginsProxy = `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(feedUrl)}`;
-  axios.get(urlWithAllOriginsProxy, { timeout: 5000 })
+  axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
       if (response.data.status.http_code === 404) {
         throw new Error(i18next.t('errors.notValidRss'));
@@ -71,60 +73,40 @@ const addNewRssFeed = (watchedState) => {
     });
 };
 
-// *** VIEW ***
-// look at src/js/view.js
-// ************
-
-// контроллер демон, запускается один раз на этапе инициализации приложения
-// const watchPosts = (watchedState) => {
-//   const { feeds, posts } = watchedState;
-//   const feedLinks = feeds.map((feed) => feed.link);
-//   feedLinks.forEach((feedLink) => {
-//     console.log(feedLink);
-//   });
-// };
-
-// собрать linkи из фидов
-// скачать посты
-// вывести посты
-// повторить тоже самое через 5 сек
-const buildAllOriginsUrl = (url) => `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`;
-
-const watchPosts = (watchedState, timerId) => {
-  console.log('*** watchPosts start ***');
+const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState;
-
-  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link))
-    .then((v) => ({ result: 'success', value: v }))
-    .catch((e) => ({ result: 'error', error: e })));
-
+  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link), { timeout: TIMEOUT })
+    .then((v) => ({ result: 'success', value: v, feedUrl: link }))
+    .catch((e) => ({ result: 'error', error: e, feedUrl: link })));
   const promise = Promise.all(promises);
+
   return promise.then((responses) => {
-    responses.forEach((response) => {
+    const freshPosts = responses.flatMap((response) => {
       if (response.result === 'error') {
         // TODO: надо как-то обработать этот кейс
+        console.log(`Impossible to get data from: ${response.feedUrl}`);
         console.log(response.error);
-        return;
+        return [];
       }
-      const rawData = response.value.data.contents;
-      const parser = new DOMParser();
-      const feedXmlDocument = parser.parseFromString(rawData, 'text/xml');
-      const items = feedXmlDocument.querySelectorAll('item');
-      items.forEach((item) => {
-        const titleText = item.querySelector('title').textContent;
-        console.log(titleText);
-      });
+      const { value, feedUrl } = response;
+      const feedData = parse(value, feedUrl);
+      return feedData.posts;
     });
-    const newTimerId = setTimeout(() => watchPosts(watchedState, newTimerId), 2000);
+
+    const newPosts = differenceBy(freshPosts, watchedState.posts, 'title');
+    if (!isEmpty(newPosts)) {
+      watchedState.posts = [...newPosts, ...watchedState.posts];
+    }
+
+    const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
   });
 };
 
-// **********************************************************************
+// *** MODEL ***
 export default () => {
-  console.log('Start !!!!');
-  // имена состояний это причастия: ....
-  // *** MODEL ***
+  console.log('>>> RSS Redader started <<<');
+
   const state = {
     form: {
       processState: 'filling', // sending, finished || failed
@@ -207,6 +189,10 @@ export default () => {
     }
   });
 
+  // *** VIEW ***
+  // look at src/js/view.js
+  // ************
+
   // *** CONTROLLERS ***
   form.addEventListener('input', (e) => {
     const { target: { value } } = e;
@@ -226,5 +212,6 @@ export default () => {
     watchedState.form.processState = 'sending';
   });
 
-  const timerId = setTimeout(() => watchPosts(watchedState, timerId), 2000);
+  // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
+  const timerId = setTimeout(() => watchForNewPosts(watchedState, timerId), DELAY);
 };
