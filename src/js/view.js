@@ -80,9 +80,8 @@ export const renderPosts = (posts, modalState, postsBlock) => {
     button.setAttribute('data-id', post.id);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
-    button.textContent = 'Preview';
+    button.textContent = i18next.t('preview');
 
-    // Динамически создаваемый контроллер
     button.addEventListener('click', (e) => {
       modalState.currentPostId = e.target.dataset.id;
     });
