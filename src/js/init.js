@@ -116,10 +116,10 @@ export default () => {
     },
     feeds: [],
     posts: [],
-    modal: {
-      currentPostId: null,
-    },
     uiState: {
+      modal: {
+        currentPostId: null,
+      },
       currentViewedPostId: null,
       viewedPostsIds: new Set(),
     },
@@ -174,7 +174,7 @@ export default () => {
         renderFeeds(value, feedsBlock);
         break;
       case 'posts':
-        /*  я прокидываю watchedState.modal через view, потому что
+        /*  я прокидываю watchedState через view, потому что
         во время рендеринга постов renderPosts динмачески создает
         новые контроллеры для кнопок preview, которые в свою очередь тоже
         должны как-то иметь доступ к модели, чтобы устанавливать id
@@ -183,7 +183,7 @@ export default () => {
         создаваемого контроллера. */
         renderPosts(value, watchedState, postsBlock);
         break;
-      case 'modal.currentPostId': {
+      case 'uiState.modal.currentPostId': {
         const post = watchedState.posts.find(({ id }) => id === value);
         addDataToModal(post);
         break;
