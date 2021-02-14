@@ -63,7 +63,6 @@ const buildPostLink = (post) => {
   link.setAttribute('target', '_blank');
   link.setAttribute('rel', 'noopener noreferrer');
   link.textContent = post.title;
-  console.log('%^&%^&%&^%&');
   return link;
 };
 
