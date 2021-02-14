@@ -90,7 +90,7 @@ const watchForNewPosts = (watchedState, timerId) => {
         return [];
       }
       const { value, feedUrl } = response;
-      const feedData = parse(value, feedUrl);
+      const feedData = parse(value.data.contents, feedUrl);
       return feedData.posts;
     });
 
