@@ -78,7 +78,7 @@ const buildPostButton = (post) => {
 };
 
 const handlePostButton = (postId, watchedState) => () => {
-  watchedState.modal.currentPostId = postId;
+  watchedState.uiState.modal.currentPostId = postId;
   watchedState.uiState.currentViewedPostId = postId;
   watchedState.uiState.viewedPostsIds.add(postId);
 };
