@@ -58,7 +58,7 @@ const addNewRssFeed = (watchedState) => {
         throw new Error(i18next.t('errors.notValidRssFormat'));
       }
       const feedData = parse(response.data.contents, feedUrl);
-      watchedState.feeds = [feedData.feed, ...watchedState.feeds];
+      watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
       watchedState.form.error = '';
