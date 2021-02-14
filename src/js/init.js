@@ -189,15 +189,8 @@ export default () => {
         break;
       }
       case 'uiState.currentViewedPostId':
-        // TODO:
-        console.log(`uiState.currentViewedPostId: ${value}`);
         renderViewedPost(value);
         break;
-      case 'uiState.viewedPostsIds':
-        // TODO:
-        console.log(`viewed post id: ${value}`);
-        break;
-
       default:
         break;
     }
