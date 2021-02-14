@@ -57,12 +57,9 @@ const addNewRssFeed = (watchedState) => {
       if (response.data.status.content_type.includes('text/html')) {
         throw new Error(i18next.t('errors.notValidRssFormat'));
       }
-      // Переделать на
-      // const feedData = parse(response.data, feedUrl);
       const feedData = parse(response, feedUrl);
       watchedState.feeds = [feedData.feed, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
-
       watchedState.form.valid = true;
       watchedState.form.error = '';
       watchedState.form.value = '';
