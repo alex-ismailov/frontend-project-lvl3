@@ -72,6 +72,7 @@ const addNewRssFeed = (watchedState) => {
     .catch((e) => {
       watchedState.form.error = e.message;
       watchedState.form.processState = 'failed';
+      throw e;
     });
 };
 
