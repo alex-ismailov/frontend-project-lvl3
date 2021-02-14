@@ -55,6 +55,40 @@ export const renderFeeds = (feeds, feedsBlock) => {
   });
 };
 
+const buildPostLink = (post) => {
+  const link = document.createElement('a');
+  link.href = post.link;
+  link.classList.add('text-decoration-none');
+  link.setAttribute('data-id', post.id);
+  link.setAttribute('target', '_blank');
+  link.setAttribute('rel', 'noopener noreferrer');
+  link.textContent = post.title;
+  console.log('%^&%^&%&^%&');
+  return link;
+};
+
+const buildPostButton = (post) => {
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.classList.add('btn', 'btn-primary', 'btn-sm');
+  button.setAttribute('data-id', post.id);
+  button.setAttribute('data-bs-toggle', 'modal');
+  button.setAttribute('data-bs-target', '#modal');
+  button.textContent = i18next.t('preview');
+  return button;
+};
+
+const handlePostButton = (postId, watchedState) => () => {
+  watchedState.modal.currentPostId = postId;
+  watchedState.uiState.currentViewedPostId = postId;
+  watchedState.uiState.viewedPostsIds.add(postId);
+};
+
+const handlePostLink = (postId, watchedState) => () => {
+  watchedState.uiState.currentViewedPostId = postId;
+  watchedState.uiState.viewedPostsIds.add(postId);
+};
+
 export const renderPosts = (posts, watchedState, postsBlock) => {
   if (!postsBlock.hasChildNodes()) {
     addTitle('Posts', postsBlock);
@@ -66,37 +100,17 @@ export const renderPosts = (posts, watchedState, postsBlock) => {
     const item = document.createElement('li');
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
-    const link = document.createElement('a');
+    const postLink = buildPostLink(post);
     const fontWeight = watchedState.uiState.viewedPostsIds.has(post.id)
       ? 'fw-normal'
       : 'fw-bold';
-    link.classList.add(fontWeight, 'text-decoration-none');
-    link.href = post.link;
-    link.setAttribute('data-id', post.id);
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener noreferrer');
-    link.textContent = post.title;
-    link.addEventListener('click', (e) => {
-      const { target: { dataset: { id } } } = e;
-      watchedState.uiState.currentViewedPostId = id;
-      watchedState.uiState.viewedPostsIds.add(id);
-    });
+    postLink.classList.add(fontWeight);
+    postLink.addEventListener('click', handlePostLink(post.id, watchedState));
 
-    const button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.classList.add('btn', 'btn-primary', 'btn-sm');
-    button.setAttribute('data-id', post.id);
-    button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
-    button.textContent = i18next.t('preview');
-    button.addEventListener('click', (e) => {
-      const { target: { dataset: { id } } } = e;
-      watchedState.modal.currentPostId = id;
-      watchedState.uiState.currentViewedPostId = id;
-      watchedState.uiState.viewedPostsIds.add(id);
-    });
+    const button = buildPostButton(post);
+    button.addEventListener('click', handlePostButton(post.id, watchedState));
 
-    item.append(link, button);
+    item.append(postLink, button);
     postItemsContainer.append(item);
   });
 };
