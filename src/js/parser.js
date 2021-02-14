@@ -20,7 +20,7 @@ const buildFeed = (feedXmlDocument, feedUrl) => {
   });
 
   return {
-    feed: {
+    feedInfo: {
       id: feedId,
       title: feedTitle,
       description: feedDescription,
@@ -33,7 +33,6 @@ const buildFeed = (feedXmlDocument, feedUrl) => {
 export default (data, feedUrl) => {
   const parser = new DOMParser();
   const feedXmlDocument = parser.parseFromString(data, 'text/xml');
-  const feed = buildFeed(feedXmlDocument, feedUrl);
 
-  return feed;
+  return buildFeed(feedXmlDocument, feedUrl);
 };
