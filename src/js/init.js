@@ -4,7 +4,7 @@ import axios from 'axios';
 import onChange from 'on-change';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import { isEmpty, differenceBy } from 'lodash';
+import _ from 'lodash';
 import {
   renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal, renderViewedPost,
 } from './view.js';
@@ -94,8 +94,8 @@ const watchForNewPosts = (watchedState, timerId) => {
       return feedData.posts;
     });
 
-    const newPosts = differenceBy(freshPosts, watchedState.posts, 'title');
-    if (!isEmpty(newPosts)) {
+    const newPosts = _.differenceBy(freshPosts, watchedState.posts, 'title');
+    if (!_.isEmpty(newPosts)) {
       watchedState.posts = [...newPosts, ...watchedState.posts];
     }
 
