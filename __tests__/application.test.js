@@ -22,3 +22,7 @@ beforeEach(() => {
 test('#freshApplication1', () => {
   expect(getFormattedHTML()).toMatchSnapshot();
 });
+
+test('#....', () => {
+
+});
