@@ -11,9 +11,6 @@ import {
 import parse from './parser.js';
 import resources from './locales/index.js';
 
-// *** MVC: MODEL -> VIEW -> CONTROLLER ->> MODEL ......***
-// ********************************************************
-
 // *** utils ***
 i18next.init({
   lng: 'en',
