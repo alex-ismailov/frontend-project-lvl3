@@ -2,21 +2,14 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import prettier from 'prettier';
-
-import { screen } from '@testing-library/dom';
-// import { screen } from '@testing-library/dom/dist/@testing-library/dom.umd.js';
-// import { waitFor } from 'node_modules/@testing-library/dom/dist/wait-for.js'
-import userEvent from '@testing-library/user-event';
-// import userEvent from '@testing-library/user-event/dist/index.js';
-
-// console.log(Object.keys(userEvent));
-// console.log(userEvent.type);
-
-// import '@testing-library/jest-dom/extend-expect';
 import '@testing-library/jest-dom';
-
+import testingLibraryDom from '@testing-library/dom';
+import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
 import run from '../src/js/init.js';
+
+const { screen, waitFor } = testingLibraryDom;
+const userEvent = testingLibraryUserEvent.default;
 
 nock.disableNetConnect();
 
@@ -43,17 +36,6 @@ beforeEach(() => {
 
   elements = {
     submit: screen.getByText(/Add/i),
-    // input: screen.getByRole('textbox', { name: /Url/i }), - не работает
-    // textbox:
-    // Name "":
-    // <input
-    //   class="form-control form-control-lg w-100"
-    //   id="rssFormInput"
-    //   name="url"
-    //   placeholder="RSS link"
-    //   required=""
-    //   type="text"
-    // />
     input: screen.getByPlaceholderText('RSS link'),
   };
 });
@@ -72,9 +54,9 @@ test('#addNewFeedWithTwoPosts1', async () => {
     .reply(200, response);
 
   userEvent.click(elements.submit);
-  // await waitFor(() => { Закомментил так как eslint ругается, расскомментируй
-  //   expect(document.body).toMatchSnapshot();
-  // });
+  await waitFor(() => { // Закомментил так как eslint ругается, расскомментируй
+    expect(document.body).toMatchSnapshot();
+  });
 
   scope.isDone();
 });
