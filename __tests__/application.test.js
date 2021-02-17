@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
-// import prettier from 'prettier';
 import '@testing-library/jest-dom';
 import testingLibraryDom from '@testing-library/dom';
 import testingLibraryUserEvent from '@testing-library/user-event';
@@ -19,14 +18,6 @@ const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf
 
 const url1 = 'http://lorem-rss.herokuapp.com/feed?length=1';
 const response = readFixture('rss1.xml');
-
-// const options = {
-//   parser: 'html',
-//   htmlWhitespaceSensitivity: 'ignore',
-//   tabWidth: 2,
-// };
-
-// const getFormattedHTML = () => prettier.format(document.body.innerHTML, options);
 
 let elements;
 
@@ -58,9 +49,8 @@ test('#addNewFeedWithTwoPosts1', async () => {
   userEvent.type(elements.input, url1);
 
   userEvent.click(elements.submit);
-  await waitFor(() => { // Закомментил так как eslint ругается, расскомментируй
-    const expected = screen.findByText(/Lorem ipsum 2021-02-17T18:39:00Z/i);
-    screen.debug();
+  await waitFor(async () => {
+    const expected = await screen.findByText(/Lorem ipsum 2021-02-17T21:28:00Z/i);
     expect(expected).toBeInTheDocument();
   });
 
