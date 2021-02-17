@@ -33,7 +33,6 @@ const buildFeed = (feedXmlDocument, feedUrl) => {
 export default (data, feedUrl) => {
   const parser = new DOMParser();
   const feedXmlDocument = parser.parseFromString(data, 'text/xml');
-  // debugger
-  console.log(feedXmlDocument);
+
   return buildFeed(feedXmlDocument, feedUrl);
 };
