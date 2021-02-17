@@ -36,7 +36,7 @@ beforeEach(() => {
   };
 });
 
-test('#addNewFeedWithTwoPosts1', async () => {
+test('Main flow with one post in feed', async () => {
   const scope = nock('https://hexlet-allorigins.herokuapp.com')
     .defaultReplyHeaders({
       'access-control-allow-origin': '*',
