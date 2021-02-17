@@ -14,7 +14,6 @@ import resources from './locales/index.js';
 // *** utils ***
 i18next.init({
   lng: 'en',
-  debug: true,
   resources,
 });
 
@@ -74,11 +73,7 @@ const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState;
   const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link), { timeout: TIMEOUT })
-    // .then((v) => ({ result: 'success', value: v, feedUrl: link }))
-    .then((v) => {
-      console.log(v);
-      return ({ result: 'success', value: v, feedUrl: link });
-    })
+    .then((v) => ({ result: 'success', value: v, feedUrl: link }))
     .catch((e) => ({ result: 'error', error: e, feedUrl: link })));
   const promise = Promise.all(promises);
 
