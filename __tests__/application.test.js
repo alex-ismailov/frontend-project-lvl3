@@ -55,6 +55,7 @@ test('Main flow with one post in feed', async () => {
   expect(expected).toBeInTheDocument();
   scope.isDone();
 });
+// ********************************
 
 test('Add button is disabled on sending', () => {
   userEvent.type(elements.input, url1);
@@ -62,30 +63,64 @@ test('Add button is disabled on sending', () => {
   expect(elements.submit).toBeDisabled();
 });
 
-test('Add button is enabled after received response', async () => {
+test('Invalid url', () => {
+  userEvent.type(elements.input, 'wrong url');
+  userEvent.click(elements.submit);
+  expect(elements.input).toHaveClass('is-invalid');
+});
+
+/* ************ skipped tests ************ */
+// Network error
+test.skip('Check success feedback', async () => {
   const scope = makeMock();
   userEvent.type(elements.input, url1);
   userEvent.click(elements.submit);
-  await waitFor(async () => {
-    expect(elements.submit).toBeEnabled();
-  });
+  // await waitFor(() => {
+  //   const expected = screen.getByText('RSS успешно загружен');
+  //   expect(expected).toBeInTheDocument();
+  // });
+  const expected = await screen.findByText('RSS успешно загружен');
+  expect(expected).toBeInTheDocument();
   scope.isDone();
 });
 
+// UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'createElement' of null
 test('Сleaning input after sending', async () => {
   const scope = makeMock();
   userEvent.type(elements.input, url1);
   userEvent.click(elements.submit);
-  await waitFor(async () => {
-    expect(elements.input).toBeEmptyDOMElement();
+  // const input = await screen.findByRole('textbox')
+  // expect(input).not.toHaveDisplayValue();
+  await waitFor(() => {
+    expect(elements.input).not.toHaveDisplayValue();
   });
   scope.isDone();
 });
 
-test.skip('Check invalid url', async () => {
-  // пример из доки
-  // expect(deleteButton).toHaveClass('extra')
-  // toHaveTextContent
+// Network error
+test.skip('Add button is enabled after received response', async () => {
+  const scope = makeMock();
+  userEvent.type(elements.input, url1);
+  userEvent.click(elements.submit);
+  await waitFor(async () => {
+    expect(screen.findByRole('textbox')).toBeEnabled();
+  });
+  // const expected = await screen.findByRole('textbox');
+  // expect(elements.submit).toBeEnabled();
+  scope.isDone();
 });
-test.skip('Check success feedback', () => {});
-// toHaveFocus
+
+// Network error
+test.skip('Valid url after invalid', async () => {
+  const scope = makeMock();
+  userEvent.type(elements.input, 'wrong url');
+  userEvent.click(elements.submit);
+  userEvent.clear(elements.input);
+  userEvent.type(elements.input, url1);
+  userEvent.click(elements.submit);
+
+  await waitFor(async () => {
+    expect(elements.input).not.toHaveClass('is-invalid');
+  });
+  scope.isDone();
+});
