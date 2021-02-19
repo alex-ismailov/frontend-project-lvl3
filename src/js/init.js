@@ -44,15 +44,15 @@ const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
   axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
-      // if (response.data.status.http_code === 404) {
-      //   throw new Error(i18next.t('errors.notValidRss'));
-      // }
-      // if (!response.data.contents) {
-      //   throw new Error(i18next.t('errors.noData'));
-      // }
-      // if (response.data.status.content_type.includes('text/html')) {
-      //   throw new Error(i18next.t('errors.notValidRssFormat'));
-      // }
+      if (response.data.status.http_code === 404) {
+        throw new Error(i18next.t('errors.notValidRss'));
+      }
+      if (!response.data.contents) {
+        throw new Error(i18next.t('errors.noData'));
+      }
+      if (response.data.status.content_type.includes('text/html')) {
+        throw new Error(i18next.t('errors.notValidRssFormat'));
+      }
       const feedData = parse(response.data.contents, feedUrl);
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
