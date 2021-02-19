@@ -101,8 +101,6 @@ const watchForNewPosts = (watchedState, timerId) => {
 
 // *** MODEL ***
 export default () => {
-  console.log('>>> RSS Redader started <<<');
-
   const state = {
     form: {
       processState: 'filling', // sending, finished || failed
