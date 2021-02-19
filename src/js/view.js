@@ -101,8 +101,8 @@ export const renderPosts = (posts, watchedState, postsBlock) => {
 
     const postLink = buildPostLink(post);
     const fontWeight = watchedState.uiState.viewedPostsIds.has(post.id)
-      ? 'fw-normal'
-      : 'fw-bold';
+      ? 'font-weight-normal'
+      : 'font-weight-bold';
     postLink.classList.add(fontWeight);
     postLink.addEventListener('click', handlePostLink(post.id, watchedState));
 
@@ -116,8 +116,8 @@ export const renderPosts = (posts, watchedState, postsBlock) => {
 
 export const renderViewedPost = (id) => {
   const post = document.querySelector(`[data-id="${id}"]`);
-  post.classList.remove('fw-bold');
-  post.classList.add('fw-normal');
+  post.classList.remove('font-weight-bold');
+  post.classList.add('font-weight-normal');
 };
 
 export const addDataToModal = (postData) => {
