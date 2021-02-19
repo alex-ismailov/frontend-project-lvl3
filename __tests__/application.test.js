@@ -82,7 +82,6 @@ test('Сleaning input after sending', async () => {
   scope.isDone();
 });
 
-
 test.skip('Check invalid url', async () => {
   // пример из доки
   // expect(deleteButton).toHaveClass('extra')
