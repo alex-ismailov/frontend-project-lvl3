@@ -13,7 +13,7 @@ import resources from './locales/index.js';
 
 // *** utils ***
 i18next.init({
-  lng: 'en',
+  fallbackLng: 'ru',
   resources,
 });
 
