@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "RSS aggregator",
-  "main": "src/index.js",
+  "main": "src/js/init.js",
   "scripts": {
     "dev": "webpack serve --config ./webpack-configs/webpack.dev.conf.cjs --host 0.0.0.0 --open --useLocalIp",
     "build": "webpack --config ./webpack-configs/webpack.build.conf.cjs",
