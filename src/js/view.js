@@ -35,7 +35,7 @@ const addItemsContainer = (element) => {
 
 export const renderFeeds = (feeds, feedsBlock) => {
   if (!feedsBlock.hasChildNodes()) {
-    addTitle('Feeds', feedsBlock);
+    addTitle(i18next.t('feeds'), feedsBlock);
     addItemsContainer(feedsBlock);
   }
   const feedsItemContainer = feedsBlock.querySelector('.list-group');
@@ -90,7 +90,7 @@ const handlePostLink = (postId, watchedState) => () => {
 
 export const renderPosts = (posts, watchedState, postsBlock) => {
   if (!postsBlock.hasChildNodes()) {
-    addTitle('Posts', postsBlock);
+    addTitle(i18next.t('posts'), postsBlock);
     addItemsContainer(postsBlock);
   }
   const postItemsContainer = postsBlock.querySelector('.list-group');
