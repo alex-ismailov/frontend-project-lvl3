@@ -9,7 +9,7 @@ import run from '../src/js/init.js';
 
 const {
   screen,
-  // waitFor
+  waitFor,
 } = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;
 
@@ -46,18 +46,6 @@ beforeEach(() => {
   };
 });
 
-// test('Main flow with one post in feed', async () => {
-//   const scope = makeMock();
-//   userEvent.type(elements.input, url1);
-//   userEvent.click(elements.submit);
-//   await waitFor(async () => {
-//     const expected = await screen.findByText(/Lorem ipsum 2021-02-17T21:28:00Z/i);
-//     expect(expected).toBeInTheDocument();
-//   });
-
-//   scope.isDone();
-// });
-
 // https://testing-library.com/docs/guide-disappearance
 test('Main flow with one post in feed', async () => {
   const scope = makeMock();
@@ -67,43 +55,38 @@ test('Main flow with one post in feed', async () => {
   expect(expected).toBeInTheDocument();
   scope.isDone();
 });
-// или так, если используем waitFor, то не обязательно испипольз. асинхр. findByText
-// и наоборот
-// test('Main flow with one post in feed 2', async () => {
-//   const scope = makeMock();
-//   userEvent.type(elements.input, url1);
-//   userEvent.click(elements.submit);
-//   await waitFor(async () => {
-//     const expected = screen.getByText(/Lorem ipsum 2021-02-17T21:28:00Z/i);
-//     expect(expected).toBeInTheDocument();
-//   });
-//   scope.isDone();
-// });
 
-test('Сleaning input after sending', () => {
-  // const scope = makeMock();
-  // userEvent.type(elements.input, url1);
-  // userEvent.click(elements.submit);
+test('Add button is disabled on sending', () => {
+  userEvent.type(elements.input, url1);
+  userEvent.click(elements.submit);
+  expect(elements.submit).toBeDisabled();
 });
 
-// => test getByText проверка фидбека на не корректн url
+test('Add button is enabled after received response', async () => {
+  const scope = makeMock();
+  userEvent.type(elements.input, url1);
+  userEvent.click(elements.submit);
+  await waitFor(async () => {
+    expect(elements.submit).toBeEnabled();
+  });
+  scope.isDone();
+});
 
-// test('Disabling Add button on sending', () => {
-//   const scope = makeMock();
-//   userEvent.type(elements.input, url1);
-//   userEvent.click(elements.submit);
-//   expect(elements.submit).toBeDisabled();
-// });
+test('Сleaning input after sending', async () => {
+  const scope = makeMock();
+  userEvent.type(elements.input, url1);
+  userEvent.click(elements.submit);
+  await waitFor(async () => {
+    expect(elements.input).toBeEmptyDOMElement();
+  });
+  scope.isDone();
+});
 
-// test('Disabling workflow of Add button on sending', async () => {
-//   const scope = makeMock();
-//   userEvent.type(elements.input, url1);
-//   userEvent.click(elements.submit);
-//   // expect(elements.submit).toBeDisabled();
-//   await waitFor(async () => {
-//     const expected = await screen.findByText(/Lorem ipsum 2021-02-17T21:28:00Z/i);
-//     expect(expected).toBeInTheDocument();
-//   });
 
-//   scope.isDone();
-// });
+test.skip('Check invalid url', async () => {
+  // пример из доки
+  // expect(deleteButton).toHaveClass('extra')
+  // toHaveTextContent
+});
+test.skip('Check success feedback', () => {});
+// toHaveFocus
