@@ -151,7 +151,7 @@ export default () => {
         input.focus();
         break;
       default:
-        throw new Error(i18next.t('unknownProcessState', { processState }));
+        throw new Error(`Unknown process state: ${processState}`);
     }
   };
 
