@@ -7,7 +7,10 @@ import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
 import run from '../src/js/init.js';
 
-const { screen, waitFor } = testingLibraryDom;
+const {
+  screen,
+  // waitFor
+} = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,20 +18,18 @@ const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
-const makeMock = () => {
-  return nock('https://hexlet-allorigins.herokuapp.com')
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
-    .get('/get')
-    .query({ disableCache: true, url: url1 })
-    .reply(200, { contents: response });
-};
-
 const url1 = 'http://lorem-rss.herokuapp.com/feed?length=1';
 const response = readFixture('rss1.xml');
 let elements;
+
+const makeMock = () => nock('https://hexlet-allorigins.herokuapp.com')
+  .defaultReplyHeaders({
+    'access-control-allow-origin': '*',
+    'access-control-allow-credentials': 'true',
+  })
+  .get('/get')
+  .query({ disableCache: true, url: url1 })
+  .reply(200, { contents: response });
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -80,15 +81,12 @@ test('Main flow with one post in feed', async () => {
 // });
 
 test('Сleaning input after sending', () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, url1);
-  userEvent.click(elements.submit);
-
+  // const scope = makeMock();
+  // userEvent.type(elements.input, url1);
+  // userEvent.click(elements.submit);
 });
 
 // => test getByText проверка фидбека на не корректн url
-
-
 
 // test('Disabling Add button on sending', () => {
 //   const scope = makeMock();
