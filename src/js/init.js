@@ -134,17 +134,17 @@ export default () => {
         break;
       case 'failed':
         submitButton.disabled = false;
-        input.disabled = false;
+        input.readOnly = false;
         input.focus();
         break;
       case 'sending':
         submitButton.disabled = true;
-        input.disabled = true;
+        input.readOnly = true;
         break;
       case 'finished':
         renderFeedback('success', feedback);
         submitButton.disabled = false;
-        input.disabled = false;
+        input.readOnly = false;
         input.value = '';
         input.focus();
         break;
