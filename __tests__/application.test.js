@@ -87,7 +87,9 @@ test.skip('Check success feedback', async () => {
   scope.isDone();
 });
 
-// UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'createElement' of null
+/* A worker process has failed to exit gracefully and has been force exited.
+This is likely caused by tests leaking due to improper teardown.
+Try running with --detectOpenHandles to find leaks. */
 test('Сleaning input after sending', async () => {
   const scope = makeMock();
   userEvent.type(elements.input, url1);
