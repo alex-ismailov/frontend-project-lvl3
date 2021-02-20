@@ -20,7 +20,7 @@ const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', 
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
 const url1 = 'http://lorem-rss.herokuapp.com/feed?length=1';
 const response = readFixture('rss1.xml');
-let elements;
+const elements = {};
 
 const makeMock = () => nock('https://hexlet-allorigins.herokuapp.com')
   .defaultReplyHeaders({
@@ -40,10 +40,9 @@ beforeEach(() => {
   document.body.innerHTML = initHtml;
   run();
 
-  elements = {
-    submit: screen.getByRole('button', /add/i),
-    input: screen.getByRole('textbox'),
-  };
+  elements.submit = screen.getByRole('button', /add/i);
+  elements.input = screen.getByRole('textbox', /url/i);
+});
 });
 
 // https://testing-library.com/docs/guide-disappearance
