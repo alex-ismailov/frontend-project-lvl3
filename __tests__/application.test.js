@@ -43,6 +43,10 @@ beforeEach(() => {
   elements.submit = screen.getByRole('button', /add/i);
   elements.input = screen.getByRole('textbox', /url/i);
 });
+
+afterAll(() => {
+  nock.cleanAll();
+  nock.enableNetConnect();
 });
 
 // https://testing-library.com/docs/guide-disappearance
