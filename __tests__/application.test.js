@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import testingLibraryDom from '@testing-library/dom';
 import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
-import run from '../src/js/init.js';
+import init from '../src/js/init.js';
 
 const {
   screen,
@@ -38,7 +38,7 @@ beforeAll(() => {
 beforeEach(() => {
   const initHtml = readFixture('index.html');
   document.body.innerHTML = initHtml;
-  run();
+  init();
 
   elements.submit = screen.getByRole('button', /add/i);
   elements.input = screen.getByRole('textbox', /url/i);
@@ -89,7 +89,7 @@ test.skip('Check success feedback', async () => {
 
 /* A worker process has failed to exit gracefully and has been force exited.
 This is likely caused by tests leaking due to improper teardown.
-Try running with --detectOpenHandles to find leaks. */
+Try initning with --detectOpenHandles to find leaks. */
 test('Сleaning input after sending', async () => {
   const scope = makeMock();
   userEvent.type(elements.input, url1);
