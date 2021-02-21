@@ -6,6 +6,7 @@ export default {
       notValidRss: 'Этот источник не содержит валидный RSS',
       noData: 'Запрос не выполнен. Нет данных',
       notValidRssFormat: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети'
     },
     success: 'RSS успешно загружен',
     preview: 'Просмотр',
