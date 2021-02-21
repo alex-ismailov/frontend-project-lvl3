@@ -67,9 +67,8 @@ const addNewRssFeed = (watchedState) => {
       watchedState.form.processState = 'filling';
     })
     .catch((e) => {
-      watchedState.form.error = e.message;
+      watchedState.form.error = i18next.t('errors.networkError');
       watchedState.form.processState = 'failed';
-      throw e;
     });
 };
 
