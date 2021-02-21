@@ -60,10 +60,10 @@ beforeEach(async () => {
 
 test('adding', async () => {
   const scope = nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: rss1 });
@@ -77,10 +77,10 @@ test('adding', async () => {
 
 test('validation (unique)', async () => {
   nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: rss1 });
@@ -104,10 +104,10 @@ test('validation (valid url)', () => {
 
 test('handling non-rss url', async () => {
   nock(corsProxy)
-        efaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
     .get(corsProxyApi)
     .query({ url: htmlUrl, disableCache: 'true' })
     .reply(200, { contents: html });
@@ -121,10 +121,10 @@ test('handling non-rss url', async () => {
 test('handling network error', async () => {
   const error = { message: 'no internet', isAxiosError: true };
   nock(corsProxy)
-        efaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .replyWithError(error);
@@ -209,10 +209,10 @@ describe('load feeds', () => {
 
 test('modal', async () => {
   nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: rss1 });
