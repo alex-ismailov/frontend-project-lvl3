@@ -53,13 +53,7 @@ const addNewRssFeed = (watchedState) => {
       // if (response.data.status.content_type.includes('text/html')) {
       //   throw new Error(i18next.t('errors.notValidRssFormat'));
       // }
-      // screen.debug();
-      // debugger
-      const rawData = response.data.contents;
-      if (!rawData.startsWith('<?xml')) {
-        throw new Error(i18next.t('errors.notValidRssFormat'));
-      }
-      const feedData = parse(rawData);
+      const feedData = parse(response.data.contents, feedUrl);
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
