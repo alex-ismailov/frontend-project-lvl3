@@ -18,30 +18,23 @@ const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
-const url1 = 'http://lorem-rss.herokuapp.com/feed?length=1';
-const response = readFixture('rss1.xml');
-const elements = {};
 
-const makeMock = () => nock('https://hexlet-allorigins.herokuapp.com')
-  .defaultReplyHeaders({
-    'access-control-allow-origin': '*',
-    'access-control-allow-credentials': 'true',
-  })
-  .get('/get')
-  .query({ disableCache: true, url: url1 })
-  .reply(200, { contents: response });
+const rss1 = readFixture('rss1.xml');
+const rssUrl = 'http://lorem-rss.herokuapp.com/feed?length=1';
+const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
+const corsProxyApi = '/get';
+
+const htmlPath = getFixturePath('index.html');
+const html = fs.readFileSync(htmlPath, 'utf-8');
+const htmlUrl = 'https://ru.hexlet.io';
+
+const index = path.join(__dirname, '..', 'index.html');
+const initHtml = fs.readFileSync(index, 'utf-8');
+
+const elements = {};
 
 beforeAll(() => {
   nock.disableNetConnect();
-});
-
-beforeEach(() => {
-  const initHtml = readFixture('index.html');
-  document.body.innerHTML = initHtml;
-  init();
-
-  elements.submit = screen.getByRole('button', /add/i);
-  elements.input = screen.getByRole('textbox', /url/i);
 });
 
 afterAll(() => {
@@ -49,19 +42,33 @@ afterAll(() => {
   nock.enableNetConnect();
 });
 
-// https://testing-library.com/docs/guide-disappearance
+beforeEach(() => {
+  document.body.innerHTML = initHtml;
+  init();
+
+  elements.submit = screen.getByRole('button', /add/i);
+  elements.input = screen.getByRole('textbox', /url/i);
+});
+
 test('Main flow with one post in feed', async () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, url1);
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
-  const expected = await screen.findByText(/Lorem ipsum 2021-02-17T21:28:00Z/i);
+  const expected = await screen.findByText(/Фид № 1 - тест/i);
   expect(expected).toBeInTheDocument();
-  scope.isDone();
 });
 // ********************************
 
 test('Add button is disabled on sending', () => {
-  userEvent.type(elements.input, url1);
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   expect(elements.submit).toBeDisabled();
 });
@@ -72,11 +79,67 @@ test('Invalid url', () => {
   expect(elements.input).toHaveClass('is-invalid');
 });
 
+// ************* Failed tests **************
+
+test('handling non-rss url', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: htmlUrl, disableCache: 'true' })
+    .reply(200, { contents: html });
+
+  userEvent.type(elements.input, htmlUrl);
+  userEvent.click(elements.submit);
+
+  expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
+});
+
+test('handling network error', async () => {
+  const error = { message: 'no internet', isAxiosError: true };
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .replyWithError(error);
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+
+  expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
+});
+
+describe('load feeds', () => {
+  test('render feed and posts', async () => {
+    nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+      .get(corsProxyApi)
+      .query({ url: rssUrl, disableCache: 'true' })
+      .reply(200, { contents: rss1 });
+
+    userEvent.type(elements.input, rssUrl);
+    userEvent.click(elements.submit);
+
+    expect(await screen.findByText(/Новые уроки на Хекслете/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Практические уроки по программированию/i)).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Traversal \/ Python: Деревья/i })).toBeInTheDocument();
+  });
+});
+
 /* ************ skipped tests ************ */
 // Network error
 test.skip('Check success feedback', async () => {
   const scope = makeMock();
-  userEvent.type(elements.input, url1);
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   // await waitFor(() => {
   //   const expected = screen.getByText('RSS успешно загружен');
@@ -91,21 +154,27 @@ test.skip('Check success feedback', async () => {
 This is likely caused by tests leaking due to improper teardown.
 Try initning with --detectOpenHandles to find leaks. */
 test('Сleaning input after sending', async () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, url1);
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   // const input = await screen.findByRole('textbox')
   // expect(input).not.toHaveDisplayValue();
   await waitFor(() => {
     expect(elements.input).not.toHaveDisplayValue();
   });
-  scope.isDone();
 });
 
 // Network error
-test.skip('Add button is enabled after received response', async () => {
+test.skip('Add button is enabled after received rss1', async () => {
   const scope = makeMock();
-  userEvent.type(elements.input, url1);
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   await waitFor(async () => {
     expect(screen.findByRole('textbox')).toBeEnabled();
@@ -121,7 +190,7 @@ test.skip('Valid url after invalid', async () => {
   userEvent.type(elements.input, 'wrong url');
   userEvent.click(elements.submit);
   userEvent.clear(elements.input);
-  userEvent.type(elements.input, url1);
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
 
   await waitFor(async () => {
