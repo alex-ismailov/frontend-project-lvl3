@@ -5,7 +5,7 @@ export default {
       feedExists: 'Rss already exists',
       notValidRss: 'This source doesn\'t contain valid rss',
       noData: 'Request failed. No data',
-      notValidRssFormat: 'Unknown RSS feed format',
+      notValidRssFormat: 'Resource does not contain valid RSS',
     },
     success: 'Rss has been loaded',
     preview: 'Preview',
