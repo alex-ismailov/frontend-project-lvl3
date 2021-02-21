@@ -44,20 +44,11 @@ const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
   axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
-      // if (response.data.status.http_code === 404) {
-      //   throw new Error(i18next.t('errors.notValidRss'));
-      // }
-      // if (!response.data.contents) {
-      //   throw new Error(i18next.t('errors.noData'));
-      // }
-      // if (response.data.status.content_type.includes('text/html')) {
-      //   throw new Error(i18next.t('errors.notValidRssFormat'));
-      // }
       const rawData = response.data.contents;
       if (!rawData.startsWith('<?xml')) {
-        throw new Error(i18next.t('errors.notValidRssFormat'));
+        throw new Error('notValidRssFormat');
       }
-      const feedData = parse(rawData);
+      const feedData = parse(rawData, feedUrl);
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
@@ -67,7 +58,10 @@ const addNewRssFeed = (watchedState) => {
       watchedState.form.processState = 'filling';
     })
     .catch((e) => {
-      watchedState.form.error = i18next.t('errors.networkError');
+      const message = e.message === 'notValidRssFormat'
+        ? i18next.t('errors.notValidRssFormat')
+        : i18next.t('errors.networkError');
+      watchedState.form.error = message;
       watchedState.form.processState = 'failed';
     });
 };
@@ -85,7 +79,6 @@ const watchForNewPosts = (watchedState, timerId) => {
       if (response.result === 'error') {
         // TODO: надо как-то обработать этот кейс
         console.log(`Impossible to get data from: ${response.feedUrl}`);
-        console.log(response.error);
         return [];
       }
       const { value, feedUrl } = response;
