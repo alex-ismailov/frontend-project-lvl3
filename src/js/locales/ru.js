@@ -5,7 +5,7 @@ export default {
       feedExists: 'RSS уже существует',
       notValidRss: 'Этот источник не содержит валидный RSS',
       noData: 'Запрос не выполнен. Нет данных',
-      notValidRssFormat: 'Неизвестный формат RSS-канала',
+      notValidRssFormat: 'Ресурс не содержит валидный RSS',
     },
     success: 'RSS успешно загружен',
     preview: 'Просмотр',
