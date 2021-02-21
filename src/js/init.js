@@ -78,7 +78,7 @@ const watchForNewPosts = (watchedState, timerId) => {
     const freshPosts = responses.flatMap((response) => {
       if (response.result === 'error') {
         // TODO: надо как-то обработать этот кейс
-        console.log(`Impossible to get data from: ${response.feedUrl}`);
+        // console.log(`Impossible to get data from: ${response.feedUrl}`);
         return [];
       }
       const { value, feedUrl } = response;
