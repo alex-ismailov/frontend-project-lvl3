@@ -1,30 +1,37 @@
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import path from 'path';
 import '@testing-library/jest-dom';
+
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+// import { screen, waitFor } from '@testing-library/dom';
+// import userEvent from '@testing-library/user-event';
 import testingLibraryDom from '@testing-library/dom';
 import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
+
 import init from '../src/js/init.js';
 
-const {
-  screen,
-  waitFor,
-} = testingLibraryDom;
+const { screen, waitFor } = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
-const readFixture = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8').trim();
+const readFixture = (filename) => {
+  const fixturePath = getFixturePath(filename);
 
+  const rss = fs.readFileSync(fixturePath, 'utf-8');
+  return rss;
+};
 const rss1 = readFixture('rss1.xml');
-const rssUrl = 'http://lorem-rss.herokuapp.com/feed?length=1';
+// const rss2 = readFixture('rss2.xml');
+// const rss3 = readFixture('rss3.xml');
+const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
 const corsProxyApi = '/get';
 
-const htmlPath = getFixturePath('index.html');
+const htmlPath = getFixturePath('document.html');
 const html = fs.readFileSync(htmlPath, 'utf-8');
 const htmlUrl = 'https://ru.hexlet.io';
 
@@ -42,51 +49,65 @@ afterAll(() => {
   nock.enableNetConnect();
 });
 
-beforeEach(() => {
+beforeEach(async () => {
   document.body.innerHTML = initHtml;
-  init();
 
-  elements.submit = screen.getByRole('button', /add/i);
-  elements.input = screen.getByRole('textbox', /url/i);
+  await init();
+
+  elements.input = screen.getByRole('textbox', { name: 'url' });
+  elements.submit = screen.getByRole('button', { name: 'add' });
 });
 
-test('Main flow with one post in feed', async () => {
-  nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
+test('adding', async () => {
+  const scope = nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: rss1 });
 
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
-  const expected = await screen.findByText(/Фид № 1 - тест/i);
-  expect(expected).toBeInTheDocument();
-});
-// ********************************
 
-test('Add button is disabled on sending', () => {
+  expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
+  scope.done();
+});
+
+test('validation (unique)', async () => {
+  nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
-  expect(elements.submit).toBeDisabled();
-});
 
-test('Invalid url', () => {
-  userEvent.type(elements.input, 'wrong url');
+  expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
+
+  userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
-  expect(elements.input).toHaveClass('is-invalid');
+
+  expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
 });
 
-// ************* Failed tests **************
+test('validation (valid url)', () => {
+  userEvent.type(elements.input, 'wrong');
+  userEvent.click(elements.submit);
+  expect(screen.getByText(/Ссылка должна быть валидным URL/i)).toBeInTheDocument();
+});
 
 test('handling non-rss url', async () => {
   nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
+        efaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
     .get(corsProxyApi)
     .query({ url: htmlUrl, disableCache: 'true' })
     .reply(200, { contents: html });
@@ -100,10 +121,10 @@ test('handling non-rss url', async () => {
 test('handling network error', async () => {
   const error = { message: 'no internet', isAxiosError: true };
   nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
+        efaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .replyWithError(error);
@@ -112,6 +133,57 @@ test('handling network error', async () => {
   userEvent.click(elements.submit);
 
   expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
+});
+
+describe('handle disabling ui elements during loading', () => {
+  test('handle successful loading', async () => {
+    nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+      .get(corsProxyApi)
+      .query({ url: rssUrl, disableCache: 'true' })
+      .reply(200, { contents: rss1 });
+
+    expect(elements.input).not.toHaveAttribute('readonly');
+    expect(elements.submit).toBeEnabled();
+
+    userEvent.type(elements.input, rssUrl);
+    userEvent.click(elements.submit);
+
+    expect(elements.input).toHaveAttribute('readonly');
+    expect(elements.submit).toBeDisabled();
+
+    await waitFor(() => {
+      expect(elements.input).not.toHaveAttribute('readonly');
+    });
+    expect(elements.submit).toBeEnabled();
+  });
+
+  test('handle failed loading', async () => {
+    nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+      .get(corsProxyApi)
+      .query({ url: htmlUrl })
+      .reply(200, { contents: html });
+
+    expect(elements.input).not.toHaveAttribute('readonly');
+    expect(elements.submit).toBeEnabled();
+
+    userEvent.type(elements.input, htmlUrl);
+    userEvent.click(elements.submit);
+    expect(elements.input).toHaveAttribute('readonly');
+    expect(elements.submit).toBeDisabled();
+
+    await waitFor(() => {
+      expect(elements.input).not.toHaveAttribute('readonly');
+    });
+    expect(elements.submit).toBeEnabled();
+  });
 });
 
 describe('load feeds', () => {
@@ -135,66 +207,22 @@ describe('load feeds', () => {
   });
 });
 
-/* ************ skipped tests ************ */
-// Network error
-test.skip('Check success feedback', async () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-  // await waitFor(() => {
-  //   const expected = screen.getByText('RSS успешно загружен');
-  //   expect(expected).toBeInTheDocument();
-  // });
-  const expected = await screen.findByText('RSS успешно загружен');
-  expect(expected).toBeInTheDocument();
-  scope.isDone();
-});
-
-/* A worker process has failed to exit gracefully and has been force exited.
-This is likely caused by tests leaking due to improper teardown.
-Try initning with --detectOpenHandles to find leaks. */
-test('Сleaning input after sending', async () => {
+test('modal', async () => {
   nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: rss1 });
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-  // const input = await screen.findByRole('textbox')
-  // expect(input).not.toHaveDisplayValue();
-  await waitFor(() => {
-    expect(elements.input).not.toHaveDisplayValue();
-  });
-});
 
-// Network error
-test.skip('Add button is enabled after received rss1', async () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-  await waitFor(async () => {
-    expect(screen.findByRole('textbox')).toBeEnabled();
-  });
-  // const expected = await screen.findByRole('textbox');
-  // expect(elements.submit).toBeEnabled();
-  scope.isDone();
-});
-
-// Network error
-test.skip('Valid url after invalid', async () => {
-  const scope = makeMock();
-  userEvent.type(elements.input, 'wrong url');
-  userEvent.click(elements.submit);
-  userEvent.clear(elements.input);
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
 
-  await waitFor(async () => {
-    expect(elements.input).not.toHaveClass('is-invalid');
-  });
-  scope.isDone();
+  const previewBtns = await screen.findAllByRole('button', { name: /Просмотр/i });
+  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toHaveClass('font-weight-bold');
+  userEvent.click(previewBtns[0]);
+  expect(await screen.findByText('Цель: Научиться извлекать из дерева необходимые данные')).toBeVisible();
+  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).not.toHaveClass('font-weight-bold');
 });
