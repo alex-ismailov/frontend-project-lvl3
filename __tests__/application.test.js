@@ -11,7 +11,7 @@ import nock from 'nock';
 
 import init from '../src/js/init.js';
 
-const { screen } = testingLibraryDom;
+const { screen, waitFor } = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,9 +31,9 @@ const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
 const corsProxyApi = '/get';
 
-// const htmlPath = getFixturePath('document.html');
-// const html = fs.readFileSync(htmlPath, 'utf-8');
-// const htmlUrl = 'https://ru.hexlet.io';
+const htmlPath = getFixturePath('document.html');
+const html = fs.readFileSync(htmlPath, 'utf-8');
+const htmlUrl = 'https://ru.hexlet.io';
 
 const index = path.join(__dirname, '..', 'index.html');
 const initHtml = fs.readFileSync(index, 'utf-8');
@@ -73,7 +73,6 @@ test('adding', async () => {
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
 });
 
-
 test('validation url', async () => {
   userEvent.type(elements.input, 'bad url');
   userEvent.click(elements.submit);
@@ -93,7 +92,7 @@ test('validation unique url', async () => {
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
-  
+
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
@@ -113,4 +112,28 @@ test('Network error', async () => {
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
+});
+
+test('failed loading', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: html });
+  
+  expect(elements.input).not.toHaveAttribute('readonly');
+  expect(elements.submit).toBeEnabled();
+
+  userEvent.type(elements.input, htmlUrl);
+  userEvent.click(elements.submit);
+  expect(elements.input).toHaveAttribute('readonly');
+  expect(elements.submit).toBeDisabled();
+
+  await waitFor(() => {
+    expect(elements.input).not.toHaveAttribute('readonly');
+    expect(elements.submit).toBeEnabled();
+  });
 });
