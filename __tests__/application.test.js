@@ -137,3 +137,18 @@ test('failed loading', async () => {
     expect(elements.submit).toBeEnabled();
   });
 });
+
+test('handling non-rss url', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: htmlUrl, disableCache: 'true' })
+    .reply(200, { contents: html });
+
+  userEvent.type(elements.input, htmlUrl);
+  userEvent.click(elements.submit);
+  expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
+});
