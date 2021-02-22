@@ -49,10 +49,10 @@ afterAll(() => {
   nock.enableNetConnect();
 });
 
-beforeEach(async () => {
+beforeEach(() => {
   document.body.innerHTML = initHtml;
 
-  await init();
+  init();
 
   elements.input = screen.getByRole('textbox', { name: 'url' });
   elements.submit = screen.getByRole('button', { name: 'add' });
@@ -97,4 +97,20 @@ test('validation unique url', async () => {
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
   expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
+});
+
+test('Network error', async () => {
+  const error = { message: 'no internet', isAxiosError: true };
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .replyWithError(error);
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+  expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
 });
