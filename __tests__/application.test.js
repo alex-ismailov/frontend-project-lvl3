@@ -123,7 +123,7 @@ test('failed loading', async () => {
     .get(corsProxyApi)
     .query({ url: rssUrl, disableCache: 'true' })
     .reply(200, { contents: html });
-  
+
   expect(elements.input).not.toHaveAttribute('readonly');
   expect(elements.submit).toBeEnabled();
 
@@ -151,4 +151,28 @@ test('handling non-rss url', async () => {
   userEvent.type(elements.input, htmlUrl);
   userEvent.click(elements.submit);
   expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
+});
+
+test('ui disabling', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
+  expect(elements.input).not.toHaveAttribute('readonly');
+  expect(elements.submit).toBeEnabled();
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+  expect(elements.input).toHaveAttribute('readonly');
+  expect(elements.submit).toBeDisabled();
+
+  await waitFor(() => {
+    expect(elements.input).not.toHaveAttribute('readonly');
+    expect(elements.submit).toBeEnabled();
+  });
 });
