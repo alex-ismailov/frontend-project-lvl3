@@ -11,7 +11,7 @@ import nock from 'nock';
 
 import init from '../src/js/init.js';
 
-const { screen, waitFor } = testingLibraryDom;
+const { screen } = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,9 +31,9 @@ const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
 const corsProxyApi = '/get';
 
-const htmlPath = getFixturePath('document.html');
-const html = fs.readFileSync(htmlPath, 'utf-8');
-const htmlUrl = 'https://ru.hexlet.io';
+// const htmlPath = getFixturePath('document.html');
+// const html = fs.readFileSync(htmlPath, 'utf-8');
+// const htmlUrl = 'https://ru.hexlet.io';
 
 const index = path.join(__dirname, '..', 'index.html');
 const initHtml = fs.readFileSync(index, 'utf-8');
@@ -59,7 +59,7 @@ beforeEach(async () => {
 });
 
 test('adding', async () => {
-  const scope = nock(corsProxy)
+  nock(corsProxy)
     .defaultReplyHeaders({
       'access-control-allow-origin': '*',
       'access-control-allow-credentials': 'true',
@@ -70,159 +70,5 @@ test('adding', async () => {
 
   userEvent.type(elements.input, rssUrl);
   userEvent.click(elements.submit);
-
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
-  scope.done();
-});
-
-test('validation (unique)', async () => {
-  nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
-    .get(corsProxyApi)
-    .query({ url: rssUrl, disableCache: 'true' })
-    .reply(200, { contents: rss1 });
-
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-
-  expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
-
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-
-  expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
-});
-
-test('validation (valid url)', () => {
-  userEvent.type(elements.input, 'wrong');
-  userEvent.click(elements.submit);
-  expect(screen.getByText(/Ссылка должна быть валидным URL/i)).toBeInTheDocument();
-});
-
-test('handling non-rss url', async () => {
-  nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
-    .get(corsProxyApi)
-    .query({ url: htmlUrl, disableCache: 'true' })
-    .reply(200, { contents: html });
-
-  userEvent.type(elements.input, htmlUrl);
-  userEvent.click(elements.submit);
-
-  expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
-});
-
-test('handling network error', async () => {
-  const error = { message: 'no internet', isAxiosError: true };
-  nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
-    .get(corsProxyApi)
-    .query({ url: rssUrl, disableCache: 'true' })
-    .replyWithError(error);
-
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-
-  expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
-});
-
-describe('handle disabling ui elements during loading', () => {
-  test('handle successful loading', async () => {
-    nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
-      .get(corsProxyApi)
-      .query({ url: rssUrl, disableCache: 'true' })
-      .reply(200, { contents: rss1 });
-
-    expect(elements.input).not.toHaveAttribute('readonly');
-    expect(elements.submit).toBeEnabled();
-
-    userEvent.type(elements.input, rssUrl);
-    userEvent.click(elements.submit);
-
-    expect(elements.input).toHaveAttribute('readonly');
-    expect(elements.submit).toBeDisabled();
-
-    await waitFor(() => {
-      expect(elements.input).not.toHaveAttribute('readonly');
-    });
-    expect(elements.submit).toBeEnabled();
-  });
-
-  test('handle failed loading', async () => {
-    nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
-      .get(corsProxyApi)
-      .query({ url: htmlUrl })
-      .reply(200, { contents: html });
-
-    expect(elements.input).not.toHaveAttribute('readonly');
-    expect(elements.submit).toBeEnabled();
-
-    userEvent.type(elements.input, htmlUrl);
-    userEvent.click(elements.submit);
-    expect(elements.input).toHaveAttribute('readonly');
-    expect(elements.submit).toBeDisabled();
-
-    await waitFor(() => {
-      expect(elements.input).not.toHaveAttribute('readonly');
-    });
-    expect(elements.submit).toBeEnabled();
-  });
-});
-
-describe('load feeds', () => {
-  test('render feed and posts', async () => {
-    nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
-      .get(corsProxyApi)
-      .query({ url: rssUrl, disableCache: 'true' })
-      .reply(200, { contents: rss1 });
-
-    userEvent.type(elements.input, rssUrl);
-    userEvent.click(elements.submit);
-
-    expect(await screen.findByText(/Новые уроки на Хекслете/i)).toBeInTheDocument();
-    expect(await screen.findByText(/Практические уроки по программированию/i)).toBeInTheDocument();
-    expect(await screen.findByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toBeInTheDocument();
-    expect(await screen.findByRole('link', { name: /Traversal \/ Python: Деревья/i })).toBeInTheDocument();
-  });
-});
-
-test('modal', async () => {
-  nock(corsProxy)
-    .defaultReplyHeaders({
-      'access-control-allow-origin': '*',
-      'access-control-allow-credentials': 'true',
-    })
-    .get(corsProxyApi)
-    .query({ url: rssUrl, disableCache: 'true' })
-    .reply(200, { contents: rss1 });
-
-  userEvent.type(elements.input, rssUrl);
-  userEvent.click(elements.submit);
-
-  const previewBtns = await screen.findAllByRole('button', { name: /Просмотр/i });
-  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toHaveClass('font-weight-bold');
-  userEvent.click(previewBtns[0]);
-  expect(await screen.findByText('Цель: Научиться извлекать из дерева необходимые данные')).toBeVisible();
-  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).not.toHaveClass('font-weight-bold');
 });
