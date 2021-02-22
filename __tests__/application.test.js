@@ -72,3 +72,10 @@ test('adding', async () => {
   userEvent.click(elements.submit);
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
 });
+
+
+test('validation url', async () => {
+  userEvent.type(elements.input, 'bad url');
+  userEvent.click(elements.submit);
+  expect(screen.getByText(/Ссылка должна быть валидным URL/i)).toBeInTheDocument();
+});
