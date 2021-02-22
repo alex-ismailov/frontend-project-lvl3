@@ -79,3 +79,22 @@ test('validation url', async () => {
   userEvent.click(elements.submit);
   expect(screen.getByText(/Ссылка должна быть валидным URL/i)).toBeInTheDocument();
 });
+
+test('validation unique url', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+  expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
+  
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+  expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
+});
