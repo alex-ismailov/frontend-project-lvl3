@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["__filename", "__dirname"] }] */
+
 import '@testing-library/jest-dom';
 
 import fs from 'fs';
