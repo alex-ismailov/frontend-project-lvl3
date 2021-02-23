@@ -129,7 +129,7 @@ test('handling non-rss url', async () => {
   expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
 });
 
-describe('Handle disabling ui elements during loading', () => {
+describe('Handle disabling ui elements during loading 1111', () => {
   test('handle successful loading loading', async () => {
     nock(corsProxy)
       .defaultReplyHeaders({
@@ -146,8 +146,8 @@ describe('Handle disabling ui elements during loading', () => {
     userEvent.click(elements.submit);
     await waitFor(() => {
       expect(elements.input).not.toHaveAttribute('readonly');
-      expect(elements.submit).toBeEnabled();
     });
+    expect(elements.submit).toBeEnabled();
   });
 
   test('handle fialed loading', async () => {
@@ -157,7 +157,7 @@ describe('Handle disabling ui elements during loading', () => {
         'access-control-allow-credentials': 'true',
       })
       .get(corsProxyApi)
-      .query({ url: rssUrl, disableCache: 'true' })
+      .query({ url: htmlUrl, disableCache: 'true' })
       .reply(200, { contents: html });
 
     expect(elements.input).not.toHaveAttribute('readonly');
@@ -173,4 +173,24 @@ describe('Handle disabling ui elements during loading', () => {
     });
     expect(elements.submit).toBeEnabled();
   });
+});
+
+test('render feed and posts', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+
+  expect(await screen.findByText(/Новые уроки на Хекслете/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Практические уроки по программированию/i)).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: /Агрегация 2 \/ Python: Деревья/i })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toBeInTheDocument();
+  expect(await screen.findByRole('link', { name: /Traversal \/ Python: Деревья/i })).toBeInTheDocument();
 });
