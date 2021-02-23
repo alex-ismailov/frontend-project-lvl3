@@ -9,13 +9,6 @@ import {
   renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal, renderViewedPost,
 } from './view.js';
 import parse from './parser.js';
-import resources from './locales/index.js';
-
-// *** utils ***
-i18next.init({
-  fallbackLng: 'ru',
-  resources,
-});
 
 yup.setLocale({
   string: {
