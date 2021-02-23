@@ -1,6 +1,6 @@
 import 'bootstrap';
-import './styles/main.scss';
+import './main.scss';
 
-import runRssAggregator from './js/init.js';
+import runRssAggregator from './init.js';
 
 runRssAggregator();

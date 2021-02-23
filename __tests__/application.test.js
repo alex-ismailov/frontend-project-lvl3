@@ -9,7 +9,7 @@ import testingLibraryDom from '@testing-library/dom';
 import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
 
-import init from '../src/js/init.js';
+import init from '../src/init.js';
 
 const { screen, waitFor } = testingLibraryDom;
 const userEvent = testingLibraryUserEvent.default;

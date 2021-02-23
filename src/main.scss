@@ -1,0 +1,12 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+
+/* В bs5 класс font-weight-* из bs4 заменен на fw-*
+Но так как тесты hexlet-check проверяют в контексте bs4
+мне пришлось добавить кастомные классы вручную. */
+.font-weight-normal {
+  font-weight: normal;
+}
+
+.font-weight-bold {
+  font-weight: bold;
+}
