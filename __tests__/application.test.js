@@ -193,3 +193,23 @@ test('render feed and posts', async () => {
   expect(await screen.findByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toBeInTheDocument();
   expect(await screen.findByRole('link', { name: /Traversal \/ Python: Деревья/i })).toBeInTheDocument();
 });
+
+test('modal', async () => {
+  nock(corsProxy)
+    .defaultReplyHeaders({
+      'access-control-allow-origin': '*',
+      'access-control-allow-credentials': 'true',
+    })
+    .get(corsProxyApi)
+    .query({ url: rssUrl, disableCache: 'true' })
+    .reply(200, { contents: rss1 });
+
+  userEvent.type(elements.input, rssUrl);
+  userEvent.click(elements.submit);
+
+  const previewBtns = await screen.findAllByRole('button', { name: /Просмотр/i });
+  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).toHaveClass('font-weight-bold');
+  userEvent.click(previewBtns[0]);
+  expect(await screen.findByText(/Цель: Научиться извлекать из дерева необходимые данные/i)).toBeVisible();
+  expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).not.toHaveClass('font-weight-bold');
+});
