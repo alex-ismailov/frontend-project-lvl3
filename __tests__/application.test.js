@@ -24,9 +24,8 @@ const readFixture = (filename) => {
   const rss = fs.readFileSync(fixturePath, 'utf-8');
   return rss;
 };
+
 const rss1 = readFixture('rss1.xml');
-// const rss2 = readFixture('rss2.xml');
-// const rss3 = readFixture('rss3.xml');
 const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
 const corsProxyApi = '/get';
@@ -129,7 +128,7 @@ test('handling non-rss url', async () => {
   expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
 });
 
-describe('Handle disabling ui elements during loading 1111', () => {
+describe('Handle disabling ui elements during loading', () => {
   test('handle successful loading loading', async () => {
     nock(corsProxy)
       .defaultReplyHeaders({
