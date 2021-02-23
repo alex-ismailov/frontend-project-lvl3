@@ -3,8 +3,6 @@ import '@testing-library/jest-dom';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import { screen, waitFor } from '@testing-library/dom';
-// import userEvent from '@testing-library/user-event';
 import testingLibraryDom from '@testing-library/dom';
 import testingLibraryUserEvent from '@testing-library/user-event';
 import nock from 'nock';
