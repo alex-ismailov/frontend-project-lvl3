@@ -10,12 +10,6 @@ import {
 } from './view.js';
 import parse from './parser.js';
 
-yup.setLocale({
-  string: {
-    url: i18next.t('errors.notValidUrl'),
-  },
-});
-
 const schema = yup.string().required().url();
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
