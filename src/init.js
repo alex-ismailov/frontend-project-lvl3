@@ -13,14 +13,14 @@ import parse from './parser.js';
 const schema = yup.string().required().url();
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
-// const buildAllOriginsUrl = (url) => `https://hexlet-allorigins.herokuapp.com/get?disableCache=true&url=${encodeURIComponent(url)}`;
 const buildAllOriginsUrl = (rssUrl) => {
-  const corsProxy = 'https://hexlet-allorigins.herokuapp.com/get';
-  const url = new URLSearchParams(corsProxy);
-  url.append('disableCache', true);
-  url.append('url', rssUrl);
+  const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
+  const corsProxyApi = '/get';
+  const params = new URLSearchParams();
+  params.append('disableCache', true);
+  params.append('url', rssUrl);
 
-  return url.toString();
+  return `${corsProxy}${corsProxyApi}?${params.toString()}`;
 };
 
 const validate = (watchedState) => {
