@@ -110,34 +110,37 @@ export default () => {
     },
   };
 
-  const form = document.getElementById('rssForm');
-  const input = form.elements.url;
-  input.focus();
-  const feedback = document.querySelector('.feedback');
-  const submitButton = form.querySelector('button');
-  const feedsBlock = document.querySelector('.feeds');
-  const postsBlock = document.querySelector('.posts');
+  const elements = {
+    form: document.getElementById('rssForm'),
+    input: document.getElementById('rssFormInput'),
+    feedback: document.querySelector('.feedback'),
+    submitButton: document.querySelector('button[aria-label=add]'),
+    feedsBlock: document.querySelector('.feeds'),
+    postsBlock: document.querySelector('.posts'),
+  };
+
+  elements.input.focus();
 
   const handleProcessState = (processState) => {
     switch (processState) {
       case 'filling':
-        submitButton.disabled = false;
+        elements.submitButton.disabled = false;
         break;
       case 'failed':
-        submitButton.disabled = false;
-        input.readOnly = false;
-        input.focus();
+        elements.submitButton.disabled = false;
+        elements.input.readOnly = false;
+        elements.input.focus();
         break;
       case 'sending':
-        submitButton.disabled = true;
-        input.readOnly = true;
+        elements.submitButton.disabled = true;
+        elements.input.readOnly = true;
         break;
       case 'finished':
-        renderFeedback('success', feedback);
-        submitButton.disabled = false;
-        input.readOnly = false;
-        input.value = '';
-        input.focus();
+        renderFeedback('success', elements.feedback);
+        elements.submitButton.disabled = false;
+        elements.input.readOnly = false;
+        elements.input.value = '';
+        elements.input.focus();
         break;
       default:
         throw new Error(`Unknown process state: ${processState}`);
@@ -150,13 +153,13 @@ export default () => {
         handleProcessState(value);
         break;
       case 'form.valid':
-        renderInputError(value, input);
+        renderInputError(value, elements.input);
         break;
       case 'form.error':
-        renderFeedback(value, feedback);
+        renderFeedback(value, elements.feedback);
         break;
       case 'feeds':
-        renderFeeds(value, feedsBlock);
+        renderFeeds(value, elements.feedsBlock);
         break;
       case 'posts':
         /*  я прокидываю watchedState через view, потому что
@@ -166,7 +169,7 @@ export default () => {
         текущего активнога поста для модального окна.
         Не уверен можно ли прокидывать модель через view для динам.
         создаваемого контроллера. */
-        renderPosts(value, watchedState, postsBlock);
+        renderPosts(value, watchedState, elements.postsBlock);
         break;
       case 'uiState.modal.currentPostId': {
         const post = watchedState.posts.find(({ id }) => id === value);
@@ -201,12 +204,12 @@ export default () => {
   };
 
   // *** CONTROLLERS ***
-  form.addEventListener('input', (e) => {
+  elements.form.addEventListener('input', (e) => {
     const { target: { value } } = e;
     watchedState.form.value = value;
   });
 
-  form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const error = validate(watchedState.form.value);
     if (error) {
