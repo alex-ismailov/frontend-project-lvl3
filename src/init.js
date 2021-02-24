@@ -13,6 +13,12 @@ import parse from './parser.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
+const processStateMap = {
+  filling: 'filling',
+  sending: 'sending',
+  finished: 'finished',
+  failed: 'failed',
+};
 
 const buildAllOriginsUrl = (rssUrl) => {
   const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
@@ -38,15 +44,15 @@ const addNewRssFeed = (watchedState) => {
       watchedState.form.valid = true;
       watchedState.form.error = '';
       watchedState.form.value = '';
-      watchedState.form.processState = 'finished';
-      watchedState.form.processState = 'filling';
+      watchedState.form.processState = processStateMap.finished;
+      watchedState.form.processState = processStateMap.filling;
     })
     .catch((e) => {
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
       watchedState.form.error = message;
-      watchedState.form.processState = 'failed';
+      watchedState.form.processState = processStateMap.failed;
     });
 };
 
@@ -88,7 +94,7 @@ export default () => {
 
   const state = {
     form: {
-      processState: 'filling', // sending, finished || failed
+      processState: processStateMap.filling,
       valid: true,
       value: '',
       error: '',
@@ -204,13 +210,13 @@ export default () => {
     e.preventDefault();
     const error = validate(watchedState.form.value);
     if (error) {
-      watchedState.form.processState = 'failed';
+      watchedState.form.processState = processStateMap.failed;
       watchedState.form.valid = false;
       watchedState.form.error = error;
       return;
     }
     addNewRssFeed(watchedState);
-    watchedState.form.processState = 'sending';
+    watchedState.form.processState = processStateMap.sending;
   });
 
   // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
