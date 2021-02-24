@@ -114,13 +114,13 @@ const renderPosts = (posts, watchedState, postsBlock) => {
   });
 };
 
-export const renderViewedPost = (id) => {
+const renderViewedPost = (id) => {
   const post = document.querySelector(`[data-id="${id}"]`);
   post.classList.remove('font-weight-bold');
   post.classList.add('font-weight-normal');
 };
 
-export const addDataToModal = (postData) => {
+const addDataToModal = (postData) => {
   const modalWindow = document.querySelector('#modal');
   const modalWindowTitle = modalWindow.querySelector('.modal-title');
   const modalWindowBody = modalWindow.querySelector('.modal-body');
@@ -181,5 +181,21 @@ export const handleData = (path, value, elements, watchedState) => {
       break;
     default:
       throw new Error(`Unknown state data path: ${path}`);
+  }
+};
+
+export const handleUIState = (path, value, posts) => {
+  switch (path) {
+    case 'uiState.modal.currentPostId': {
+      const post = posts.find(({ id }) => id === value);
+      addDataToModal(post);
+      break;
+    }
+    case 'uiState.currentViewedPostId':
+      renderViewedPost(value);
+      break;
+
+    default:
+      throw new Error(`Unknown uiState path: ${path}`);
   }
 };

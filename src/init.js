@@ -7,8 +7,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  addDataToModal, renderViewedPost,
-  handleProcessState, handleFormState, handleData,
+  handleProcessState, handleFormState, handleData, handleUIState,
 } from './view.js';
 import parse from './parser.js';
 
@@ -135,13 +134,9 @@ export default () => {
       case 'posts':
         handleData(path, value, elements, watchedState);
         break;
-      case 'uiState.modal.currentPostId': {
-        const post = watchedState.posts.find(({ id }) => id === value);
-        addDataToModal(post);
-        break;
-      }
+      case 'uiState.modal.currentPostId':
       case 'uiState.currentViewedPostId':
-        renderViewedPost(value);
+        handleUIState(path, value, watchedState.posts);
         break;
       default:
         break;
