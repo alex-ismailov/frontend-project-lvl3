@@ -1,18 +1,27 @@
 /* eslint no-param-reassign: 0 */
 
-import axios from 'axios';
-import onChange from 'on-change';
-import * as yup from 'yup';
 import i18next from 'i18next';
+import * as yup from 'yup';
+import onChange from 'on-change';
+import axios from 'axios';
 import _ from 'lodash';
+import resources from './locales/index.js';
 import {
   renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal, renderViewedPost,
 } from './view.js';
 import parse from './parser.js';
 
-const schema = yup.string().required().url();
+// yup.setLocale({
+//   string: {
+//     url: '#$%#$%#$%#%$',
+//   },
+// });
+
+// const schema = yup.string().required().url(i18next.t('errors.notValidUrl'));
+
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
+
 const buildAllOriginsUrl = (rssUrl) => {
   const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
   const corsProxyApi = '/get';
@@ -23,17 +32,17 @@ const buildAllOriginsUrl = (rssUrl) => {
   return `${corsProxy}${corsProxyApi}?${params.toString()}`;
 };
 
-const validate = (watchedState) => {
-  const { form: { value }, feeds } = watchedState;
-  try {
-    schema.validateSync(value, { abortEarly: false });
-    return feeds.some((feed) => feed.link === value)
-      ? i18next.t('errors.feedExists')
-      : '';
-  } catch (e) {
-    return e.message;
-  }
-};
+// const validate = (watchedState) => {
+//   const { form: { value }, feeds } = watchedState;
+//   try {
+//     schema.validateSync(value, { abortEarly: false });
+//     return feeds.some((feed) => feed.link === value)
+//       ? i18next.t('errors.feedExists')
+//       : '';
+//   } catch (e) {
+//     return e.message;
+//   }
+// };
 
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
@@ -92,6 +101,31 @@ const watchForNewPosts = (watchedState, timerId) => {
 
 // *** MODEL ***
 export default () => {
+  i18next.init({
+    fallbackLng: 'ru',
+    resources,
+  });
+
+  yup.setLocale({
+    string: {
+      url: i18next.t('errors.notValidUrl'),
+    },
+  });
+
+  const schema = yup.string().required().url();
+
+  const validate = (watchedState) => {
+    const { form: { value }, feeds } = watchedState;
+    try {
+      schema.validateSync(value, { abortEarly: false });
+      return feeds.some((feed) => feed.link === value)
+        ? i18next.t('errors.feedExists')
+        : '';
+    } catch (e) {
+      return e.message;
+    }
+  };
+
   const state = {
     form: {
       processState: 'filling', // sending, finished || failed
