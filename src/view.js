@@ -33,7 +33,7 @@ const addItemsContainer = (element) => {
   element.append(ul);
 };
 
-export const renderFeeds = (feeds, feedsBlock) => {
+const renderFeeds = (feeds, feedsBlock) => {
   if (!feedsBlock.hasChildNodes()) {
     addTitle(i18next.t('feeds'), feedsBlock);
     addItemsContainer(feedsBlock);
@@ -88,7 +88,7 @@ const handlePostLink = (postId, watchedState) => () => {
   watchedState.uiState.viewedPostsIds.add(postId);
 };
 
-export const renderPosts = (posts, watchedState, postsBlock) => {
+const renderPosts = (posts, watchedState, postsBlock) => {
   if (!postsBlock.hasChildNodes()) {
     addTitle(i18next.t('posts'), postsBlock);
     addItemsContainer(postsBlock);
@@ -168,5 +168,18 @@ export const handleFormState = (path, value, elements) => {
       break;
     default:
       throw new Error(`Unknown form state: ${path}`);
+  }
+};
+
+export const handleData = (path, value, elements, watchedState) => {
+  switch (path) {
+    case 'feeds':
+      renderFeeds(value, elements.feedsBlock);
+      break;
+    case 'posts':
+      renderPosts(value, watchedState, elements.postsBlock);
+      break;
+    default:
+      throw new Error(`Unknown state data path: ${path}`);
   }
 };

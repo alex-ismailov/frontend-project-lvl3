@@ -7,8 +7,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  renderFeeds, renderPosts, addDataToModal,
-  renderViewedPost, handleProcessState, handleFormState,
+  addDataToModal, renderViewedPost,
+  handleProcessState, handleFormState, handleData,
 } from './view.js';
 import parse from './parser.js';
 
@@ -132,17 +132,8 @@ export default () => {
         handleFormState(path, value, elements);
         break;
       case 'feeds':
-        renderFeeds(value, elements.feedsBlock);
-        break;
       case 'posts':
-        /*  я прокидываю watchedState через view, потому что
-        во время рендеринга постов renderPosts динмачески создает
-        новые контроллеры для кнопок preview, которые в свою очередь тоже
-        должны как-то иметь доступ к модели, чтобы устанавливать id
-        текущего активнога поста для модального окна.
-        Не уверен можно ли прокидывать модель через view для динам.
-        создаваемого контроллера. */
-        renderPosts(value, watchedState, elements.postsBlock);
+        handleData(path, value, elements, watchedState);
         break;
       case 'uiState.modal.currentPostId': {
         const post = watchedState.posts.find(({ id }) => id === value);
