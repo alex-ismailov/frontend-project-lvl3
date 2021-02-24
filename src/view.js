@@ -131,3 +131,29 @@ export const addDataToModal = (postData) => {
   modalWindowBody.textContent = description;
   modalWindowLink.href = link;
 };
+
+export const handleProcessState = (processState, elements) => {
+  switch (processState) {
+    case 'filling':
+      elements.submitButton.disabled = false;
+      break;
+    case 'failed':
+      elements.submitButton.disabled = false;
+      elements.input.readOnly = false;
+      elements.input.focus();
+      break;
+    case 'sending':
+      elements.submitButton.disabled = true;
+      elements.input.readOnly = true;
+      break;
+    case 'finished':
+      renderFeedback('success', elements.feedback);
+      elements.submitButton.disabled = false;
+      elements.input.readOnly = false;
+      elements.input.value = '';
+      elements.input.focus();
+      break;
+    default:
+      throw new Error(`Unknown process state: ${processState}`);
+  }
+};

@@ -7,7 +7,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  renderInputError, renderFeeds, renderFeedback, renderPosts, addDataToModal, renderViewedPost,
+  renderInputError, renderFeeds, renderFeedback, renderPosts,
+  addDataToModal, renderViewedPost, handleProcessState,
 } from './view.js';
 import parse from './parser.js';
 
@@ -121,36 +122,10 @@ export default () => {
 
   elements.input.focus();
 
-  const handleProcessState = (processState) => {
-    switch (processState) {
-      case 'filling':
-        elements.submitButton.disabled = false;
-        break;
-      case 'failed':
-        elements.submitButton.disabled = false;
-        elements.input.readOnly = false;
-        elements.input.focus();
-        break;
-      case 'sending':
-        elements.submitButton.disabled = true;
-        elements.input.readOnly = true;
-        break;
-      case 'finished':
-        renderFeedback('success', elements.feedback);
-        elements.submitButton.disabled = false;
-        elements.input.readOnly = false;
-        elements.input.value = '';
-        elements.input.focus();
-        break;
-      default:
-        throw new Error(`Unknown process state: ${processState}`);
-    }
-  };
-
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.processState':
-        handleProcessState(value);
+        handleProcessState(value, elements);
         break;
       case 'form.valid':
         renderInputError(value, elements.input);
