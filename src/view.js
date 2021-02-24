@@ -1,6 +1,19 @@
 /* eslint no-param-reassign: 0 */
 
 import i18next from 'i18next';
+import * as yup from 'yup';
+import resources from './locales/index.js';
+
+i18next.init({
+  fallbackLng: 'ru',
+  resources,
+});
+
+yup.setLocale({
+  string: {
+    url: i18next.t('errors.notValidUrl'),
+  },
+});
 
 export const renderInputError = (isValid, input) => {
   if (!isValid) {
