@@ -7,8 +7,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  renderInputError, renderFeeds, renderFeedback, renderPosts,
-  addDataToModal, renderViewedPost, handleProcessState,
+  renderFeeds, renderPosts, addDataToModal,
+  renderViewedPost, handleProcessState, handleFormState,
 } from './view.js';
 import parse from './parser.js';
 
@@ -128,10 +128,8 @@ export default () => {
         handleProcessState(value, elements);
         break;
       case 'form.valid':
-        renderInputError(value, elements.input);
-        break;
       case 'form.error':
-        renderFeedback(value, elements.feedback);
+        handleFormState(path, value, elements);
         break;
       case 'feeds':
         renderFeeds(value, elements.feedsBlock);

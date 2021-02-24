@@ -2,7 +2,7 @@
 
 import i18next from 'i18next';
 
-export const renderInputError = (isValid, input) => {
+const renderInputError = (isValid, input) => {
   if (!isValid) {
     input.classList.add('is-invalid');
     return;
@@ -10,7 +10,7 @@ export const renderInputError = (isValid, input) => {
   input.classList.remove('is-invalid');
 };
 
-export const renderFeedback = (message, element) => {
+const renderFeedback = (message, element) => {
   if (message !== 'success') {
     element.textContent = message;
     element.classList.add('text-danger');
@@ -155,5 +155,18 @@ export const handleProcessState = (processState, elements) => {
       break;
     default:
       throw new Error(`Unknown process state: ${processState}`);
+  }
+};
+
+export const handleFormState = (path, value, elements) => {
+  switch (path) {
+    case 'form.valid':
+      renderInputError(value, elements.input);
+      break;
+    case 'form.error':
+      renderFeedback(value, elements.feedback);
+      break;
+    default:
+      throw new Error(`Unknown form state: ${path}`);
   }
 };
