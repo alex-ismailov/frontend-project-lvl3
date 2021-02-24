@@ -32,18 +32,6 @@ const buildAllOriginsUrl = (rssUrl) => {
   return `${corsProxy}${corsProxyApi}?${params.toString()}`;
 };
 
-// const validate = (watchedState) => {
-//   const { form: { value }, feeds } = watchedState;
-//   try {
-//     schema.validateSync(value, { abortEarly: false });
-//     return feeds.some((feed) => feed.link === value)
-//       ? i18next.t('errors.feedExists')
-//       : '';
-//   } catch (e) {
-//     return e.message;
-//   }
-// };
-
 const addNewRssFeed = (watchedState) => {
   const { form: { value: feedUrl } } = watchedState;
   axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
@@ -105,26 +93,6 @@ export default () => {
     fallbackLng: 'ru',
     resources,
   });
-
-  yup.setLocale({
-    string: {
-      url: i18next.t('errors.notValidUrl'),
-    },
-  });
-
-  const schema = yup.string().required().url();
-
-  const validate = (watchedState) => {
-    const { form: { value }, feeds } = watchedState;
-    try {
-      schema.validateSync(value, { abortEarly: false });
-      return feeds.some((feed) => feed.link === value)
-        ? i18next.t('errors.feedExists')
-        : '';
-    } catch (e) {
-      return e.message;
-    }
-  };
 
   const state = {
     form: {
@@ -219,6 +187,21 @@ export default () => {
   // look at src/js/view.js
   // ************
 
+  const schema = yup
+    .string()
+    .url(i18next.t('errors.notValidUrl'))
+    .test('unique', i18next.t('errors.feedExists'),
+      (value) => !watchedState.feeds.some((feed) => feed.link === value));
+
+  const validate = (value) => {
+    try {
+      schema.validateSync(value, { abortEarly: false });
+      return null;
+    } catch (e) {
+      return e.message;
+    }
+  };
+
   // *** CONTROLLERS ***
   form.addEventListener('input', (e) => {
     const { target: { value } } = e;
@@ -227,7 +210,7 @@ export default () => {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const error = validate(watchedState);
+    const error = validate(watchedState.form.value);
     if (error) {
       watchedState.form.processState = 'failed';
       watchedState.form.valid = false;
