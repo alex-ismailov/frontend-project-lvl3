@@ -77,18 +77,7 @@ const buildPostButton = (post) => {
   return button;
 };
 
-const handlePostButton = (postId, watchedState) => () => {
-  watchedState.uiState.modal.currentPostId = postId;
-  watchedState.uiState.currentViewedPostId = postId;
-  watchedState.uiState.viewedPostsIds.add(postId);
-};
-
-const handlePostLink = (postId, watchedState) => () => {
-  watchedState.uiState.currentViewedPostId = postId;
-  watchedState.uiState.viewedPostsIds.add(postId);
-};
-
-const renderPosts = (posts, watchedState, postsBlock) => {
+const renderPosts = (posts, postsBlock, viewedPostsIds) => {
   if (!postsBlock.hasChildNodes()) {
     addTitle(i18next.t('posts'), postsBlock);
     addItemsContainer(postsBlock);
@@ -100,14 +89,12 @@ const renderPosts = (posts, watchedState, postsBlock) => {
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
     const postLink = buildPostLink(post);
-    const fontWeight = watchedState.uiState.viewedPostsIds.has(post.id)
+    const fontWeight = viewedPostsIds.has(post.id)
       ? 'font-weight-normal'
       : 'font-weight-bold';
     postLink.classList.add(fontWeight);
-    postLink.addEventListener('click', handlePostLink(post.id, watchedState));
 
     const button = buildPostButton(post);
-    button.addEventListener('click', handlePostButton(post.id, watchedState));
 
     item.append(postLink, button);
     postItemsContainer.append(item);
@@ -171,13 +158,13 @@ export const handleFormState = (path, value, elements) => {
   }
 };
 
-export const handleData = (path, value, elements, watchedState) => {
+export const handleData = (path, value, elements, viewedPostsIds) => {
   switch (path) {
     case 'feeds':
       renderFeeds(value, elements.feedsBlock);
       break;
     case 'posts':
-      renderPosts(value, watchedState, elements.postsBlock);
+      renderPosts(value, elements.postsBlock, viewedPostsIds);
       break;
     default:
       throw new Error(`Unknown state data path: ${path}`);
