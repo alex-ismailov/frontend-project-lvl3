@@ -10,6 +10,7 @@ import {
   handleProcessState, handleFormState, handleData, handleUIState,
 } from './view.js';
 import parse from './parser.js';
+import parser2 from './parser-2.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
@@ -39,6 +40,9 @@ const addNewRssFeed = (watchedState) => {
         throw new Error('notValidRssFormat');
       }
       const feedData = parse(rawData, feedUrl);
+
+      console.log(parser2(rawData, feedUrl));
+
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
