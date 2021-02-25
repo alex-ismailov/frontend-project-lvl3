@@ -41,22 +41,22 @@ const addNewRssFeed = (watchedState) => {
       }
       const feedData = parse(rawData, feedUrl);
 
-      console.log(parser2(rawData, feedUrl));
+      // console.log(parser2(rawData, feedUrl)); <= DRAFT of new parser
 
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
       watchedState.form.error = '';
       watchedState.form.value = '';
-      watchedState.form.processState = processStateMap.finished;
-      watchedState.form.processState = processStateMap.filling;
+      watchedState.processState = processStateMap.finished;
+      watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
       watchedState.form.error = message;
-      watchedState.form.processState = processStateMap.failed;
+      watchedState.processState = processStateMap.failed;
     });
 };
 
@@ -97,8 +97,8 @@ export default () => {
   });
 
   const state = {
+    processState: processStateMap.filling,
     form: {
-      processState: processStateMap.filling,
       valid: true,
       value: '',
       error: '',
@@ -127,7 +127,7 @@ export default () => {
 
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'form.processState':
+      case 'processState':
         handleProcessState(value, elements);
         break;
       case 'form.valid':
@@ -176,13 +176,13 @@ export default () => {
     e.preventDefault();
     const error = validate(watchedState.form.value);
     if (error) {
-      watchedState.form.processState = processStateMap.failed;
+      watchedState.processState = processStateMap.failed;
       watchedState.form.valid = false;
       watchedState.form.error = error;
       return;
     }
     addNewRssFeed(watchedState);
-    watchedState.form.processState = processStateMap.sending;
+    watchedState.processState = processStateMap.sending;
   });
 
   elements.postsBlock.addEventListener('click', (e) => {
