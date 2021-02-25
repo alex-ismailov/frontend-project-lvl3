@@ -41,14 +41,24 @@ const addNewRssFeed = (watchedState) => {
       }
       const feedData = parse(rawData, feedUrl);
 
-      console.log(parser2(rawData, feedUrl));
+      // console.log(parser2(rawData, feedUrl));
 
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
-      watchedState.form.valid = true;
-      watchedState.form.error = '';
-      watchedState.form.value = '';
-      watchedState.form.processState = processStateMap.finished;
+      // watchedState.form.valid = true;
+      // watchedState.form.error = '';
+      // watchedState.form.value = '';
+      // watchedState.form.processState = processStateMap.finished;
+      // watchedState.form.processState = processStateMap.filling;
+
+      watchedState.form = {
+        ...watchedState.form,
+        valid: true,
+        error: '',
+        value: '',
+        processState: processStateMap.finished,
+      };
+
       watchedState.form.processState = processStateMap.filling;
     })
     .catch((e) => {
