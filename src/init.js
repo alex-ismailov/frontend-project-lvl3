@@ -7,7 +7,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  handleProcessState, handleFormState, handleData, handleUIState,
+  handleProcessState, handleData, handleUIState,
+  renderFeedback, renderInputError,
 } from './view.js';
 import parse from './parser.js';
 import parser2 from './parser-2.js';
@@ -46,8 +47,8 @@ const addNewRssFeed = (watchedState) => {
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
       watchedState.form.valid = true;
-      watchedState.form.error = '';
       watchedState.form.value = '';
+      watchedState.error = '';
       watchedState.processState = processStateMap.finished;
       watchedState.processState = processStateMap.filling;
     })
@@ -55,7 +56,7 @@ const addNewRssFeed = (watchedState) => {
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
-      watchedState.form.error = message;
+      watchedState.error = message;
       watchedState.processState = processStateMap.failed;
     });
 };
@@ -98,10 +99,10 @@ export default () => {
 
   const state = {
     processState: processStateMap.filling,
+    error: '',
     form: {
       valid: true,
       value: '',
-      error: '',
     },
     feeds: [],
     posts: [],
@@ -131,8 +132,10 @@ export default () => {
         handleProcessState(value, elements);
         break;
       case 'form.valid':
-      case 'form.error':
-        handleFormState(path, value, elements);
+        renderInputError(value, elements.input);
+        break;
+      case 'error':
+        renderFeedback(value, elements.feedback);
         break;
       case 'feeds':
       case 'posts':
@@ -178,7 +181,7 @@ export default () => {
     if (error) {
       watchedState.processState = processStateMap.failed;
       watchedState.form.valid = false;
-      watchedState.form.error = error;
+      watchedState.error = error;
       return;
     }
     addNewRssFeed(watchedState);
