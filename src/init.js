@@ -132,6 +132,10 @@ export default () => {
         break;
       case 'feeds':
       case 'posts':
+        // Вместо watchedState надо передать контроллеры для
+        // handlePostButton и handlePostLink
+        // которые должны быть сформированны здесь, на уровне приложения
+        // чтобы иметь доступ к watchedState
         handleData(path, value, elements, watchedState);
         break;
       case 'uiState.modal.currentPostId':
@@ -179,6 +183,10 @@ export default () => {
     }
     addNewRssFeed(watchedState);
     watchedState.form.processState = processStateMap.sending;
+  });
+
+  elements.form.addEventListener('click', () => {
+
   });
 
   // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
