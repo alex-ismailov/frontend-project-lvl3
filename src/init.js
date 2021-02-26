@@ -11,7 +11,7 @@ import {
   renderFeedback, renderInputError,
 } from './view.js';
 import parse from './parser.js';
-import parser2 from './parser-2.js';
+// import parser2 from './parser-2.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
@@ -46,8 +46,11 @@ const addNewRssFeed = (watchedState) => {
 
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
-      watchedState.form.valid = true;
-      watchedState.form.value = '';
+      watchedState.form = {
+        ...watchedState.form,
+        valid: true,
+        value: '',
+      };
       watchedState.error = '';
       watchedState.processState = processStateMap.finished;
       watchedState.processState = processStateMap.filling;
@@ -131,7 +134,7 @@ export default () => {
       case 'processState':
         handleProcessState(value, elements);
         break;
-      case 'form.valid':
+      case 'form':
         renderInputError(value, elements.input);
         break;
       case 'error':
