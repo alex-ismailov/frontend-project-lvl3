@@ -142,17 +142,15 @@ export const handleProcessState = (processState, elements, error) => {
   }
 };
 
-export const handleData = (path, value, elements, viewedPostsIds) => {
-  switch (path) {
-    case 'data.feeds':
-      renderFeeds(value, elements.feedsBlock);
-      break;
-    case 'data.posts':
-      renderPosts(value, elements.postsBlock, viewedPostsIds);
-      break;
-    default:
-      throw new Error(`Unknown state data path: ${path}`);
+export const renderData = (value, previousValue, elements, viewedPostsIds) => {
+  const { feeds, posts } = value;
+  const { feeds: previousFeeds } = previousValue;
+  if (feeds.length === previousFeeds.length) {
+    renderPosts(posts, elements.postsBlock, viewedPostsIds);
+    return;
   }
+  renderFeeds(feeds, elements.feedsBlock);
+  renderPosts(posts, elements.postsBlock, viewedPostsIds);
 };
 
 export const handleUIState = (path, value, posts) => {

@@ -7,7 +7,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  handleProcessState, handleData, handleUIState, renderInputError,
+  handleProcessState, handleUIState, renderInputError, renderData,
 } from './view.js';
 import parse from './parser.js';
 // import parser2 from './parser-2.js';
@@ -40,18 +40,18 @@ const addNewRssFeed = (watchedState) => {
         throw new Error('notValidRssFormat');
       }
       const feedData = parse(rawData, feedUrl);
-
       // console.log(parser2(rawData, feedUrl)); <= DRAFT of new parser
 
-      watchedState.data.feeds = [feedData.feedInfo, ...watchedState.data.feeds];
-      watchedState.data.posts = [...feedData.posts, ...watchedState.data.posts];
-
+      watchedState.data = {
+        ...watchedState.data, // <= ask Ira
+        feeds: [feedData.feedInfo, ...watchedState.data.feeds],
+        posts: [...feedData.posts, ...watchedState.data.posts],
+      };
       watchedState.form = {
-        ...watchedState.form,
+        ...watchedState.form, // <= ask Ira
         valid: true,
         value: '',
       };
-
       watchedState.error = '';
       watchedState.processState = processStateMap.finished;
       watchedState.processState = processStateMap.filling;
@@ -89,7 +89,10 @@ const watchForNewPosts = (watchedState, timerId) => {
 
     const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
     if (!_.isEmpty(newPosts)) {
-      watchedState.data.posts = [...newPosts, ...watchedState.data.posts];
+      watchedState.data = {
+        ...watchedState.data,
+        posts: [...newPosts, ...watchedState.data.posts],
+      };
     }
 
     const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
@@ -134,7 +137,7 @@ export default () => {
 
   elements.input.focus();
 
-  const watchedState = onChange(state, (path, value) => {
+  const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'processState':
         handleProcessState(value, elements, watchedState.error);
@@ -142,9 +145,8 @@ export default () => {
       case 'form':
         renderInputError(value.valid, elements.input);
         break;
-      case 'data.feeds':
-      case 'data.posts':
-        handleData(path, value, elements, watchedState.uiState.viewedPostsIds);
+      case 'data':
+        renderData(value, previousValue, elements, watchedState.uiState.viewedPostsIds);
         break;
       case 'uiState.modal.currentPostId':
       case 'uiState.currentViewedPostId':
@@ -186,7 +188,10 @@ export default () => {
     if (error) {
       watchedState.error = error;
       watchedState.processState = processStateMap.failed;
-      watchedState.form.valid = false;
+      watchedState.form = {
+        ...watchedState.form,
+        valid: false,
+      };
       return;
     }
     addNewRssFeed(watchedState);
