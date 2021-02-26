@@ -140,10 +140,6 @@ export default () => {
       case 'form':
         renderInputError(value.valid, elements.input);
         break;
-      case 'error':
-        // renderFeedback вызывает processState по необходимости.
-        // renderFeedback(value, elements.feedback);
-        break;
       case 'feeds':
       case 'posts':
         handleData(path, value, elements, watchedState.uiState.viewedPostsIds);
