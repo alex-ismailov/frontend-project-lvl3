@@ -7,8 +7,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
 import {
-  handleProcessState, handleData, handleUIState,
-  renderFeedback, renderInputError,
+  handleProcessState, handleData, handleUIState, renderInputError,
 } from './view.js';
 import parse from './parser.js';
 // import parser2 from './parser-2.js';
@@ -46,11 +45,13 @@ const addNewRssFeed = (watchedState) => {
 
       watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
       watchedState.posts = [...feedData.posts, ...watchedState.posts];
+
       watchedState.form = {
         ...watchedState.form,
         valid: true,
         value: '',
       };
+
       watchedState.error = '';
       watchedState.processState = processStateMap.finished;
       watchedState.processState = processStateMap.filling;
@@ -132,14 +133,14 @@ export default () => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'processState':
-        handleProcessState(value, elements);
+        handleProcessState(value, elements, watchedState.error);
         break;
       case 'form':
-        renderInputError(value, elements.input);
+        renderInputError(value.valid, elements.input);
         break;
-      case 'error':
-        renderFeedback(value, elements.feedback);
-        break;
+      // case 'error':
+      //   renderFeedback(value, elements.feedback);
+      //   break;
       case 'feeds':
       case 'posts':
         handleData(path, value, elements, watchedState.uiState.viewedPostsIds);
@@ -182,9 +183,9 @@ export default () => {
     e.preventDefault();
     const error = validate(watchedState.form.value);
     if (error) {
+      watchedState.error = error;
       watchedState.processState = processStateMap.failed;
       watchedState.form.valid = false;
-      watchedState.error = error;
       return;
     }
     addNewRssFeed(watchedState);

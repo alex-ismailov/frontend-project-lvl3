@@ -119,12 +119,12 @@ const addDataToModal = (postData) => {
   modalWindowLink.href = link;
 };
 
-export const handleProcessState = (processState, elements) => {
+export const handleProcessState = (processState, elements, error) => {
   switch (processState) {
     case 'filling':
-      elements.submitButton.disabled = false;
       break;
     case 'failed':
+      renderFeedback(error, elements.feedback);
       elements.submitButton.disabled = false;
       elements.input.readOnly = false;
       elements.input.focus();
