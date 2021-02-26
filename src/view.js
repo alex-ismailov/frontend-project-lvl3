@@ -142,25 +142,12 @@ export const handleProcessState = (processState, elements, error) => {
   }
 };
 
-// export const handleFormState = (path, value, elements) => {
-//   switch (path) {
-//     case 'form.valid':
-//       renderInputError(value, elements.input);
-//       break;
-//     case 'form.error':
-//       renderFeedback(value, elements.feedback);
-//       break;
-//     default:
-//       throw new Error(`Unknown form state: ${path}`);
-//   }
-// };
-
 export const handleData = (path, value, elements, viewedPostsIds) => {
   switch (path) {
-    case 'feeds':
+    case 'data.feeds':
       renderFeeds(value, elements.feedsBlock);
       break;
-    case 'posts':
+    case 'data.posts':
       renderPosts(value, elements.postsBlock, viewedPostsIds);
       break;
     default:

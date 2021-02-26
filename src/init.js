@@ -43,8 +43,8 @@ const addNewRssFeed = (watchedState) => {
 
       // console.log(parser2(rawData, feedUrl)); <= DRAFT of new parser
 
-      watchedState.feeds = [feedData.feedInfo, ...watchedState.feeds];
-      watchedState.posts = [...feedData.posts, ...watchedState.posts];
+      watchedState.data.feeds = [feedData.feedInfo, ...watchedState.data.feeds];
+      watchedState.data.posts = [...feedData.posts, ...watchedState.data.posts];
 
       watchedState.form = {
         ...watchedState.form,
@@ -69,7 +69,7 @@ const addNewRssFeed = (watchedState) => {
 
 const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
-  const { feeds } = watchedState;
+  const { feeds } = watchedState.data;
   const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link), { timeout: TIMEOUT })
     .then((v) => ({ result: 'success', value: v, feedUrl: link }))
     .catch((e) => ({ result: 'error', error: e, feedUrl: link })));
@@ -87,9 +87,9 @@ const watchForNewPosts = (watchedState, timerId) => {
       return feedData.posts;
     });
 
-    const newPosts = _.differenceBy(freshPosts, watchedState.posts, 'title');
+    const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
     if (!_.isEmpty(newPosts)) {
-      watchedState.posts = [...newPosts, ...watchedState.posts];
+      watchedState.data.posts = [...newPosts, ...watchedState.data.posts];
     }
 
     const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
@@ -110,8 +110,12 @@ export default () => {
       valid: true,
       value: '',
     },
-    feeds: [],
-    posts: [],
+    data: {
+      feeds: [],
+      posts: [],
+    },
+    // feeds: [],
+    // posts: [],
     uiState: {
       modal: {
         currentPostId: null,
@@ -140,13 +144,13 @@ export default () => {
       case 'form':
         renderInputError(value.valid, elements.input);
         break;
-      case 'feeds':
-      case 'posts':
+      case 'data.feeds':
+      case 'data.posts':
         handleData(path, value, elements, watchedState.uiState.viewedPostsIds);
         break;
       case 'uiState.modal.currentPostId':
       case 'uiState.currentViewedPostId':
-        handleUIState(path, value, watchedState.posts);
+        handleUIState(path, value, watchedState.data.posts);
         break;
       default:
         break;
@@ -161,7 +165,7 @@ export default () => {
     .string()
     .url(i18next.t('errors.notValidUrl'))
     .test('unique', i18next.t('errors.feedExists'),
-      (value) => !watchedState.feeds.some((feed) => feed.link === value));
+      (value) => !watchedState.data.feeds.some((feed) => feed.link === value));
 
   const validate = (value) => {
     try {
