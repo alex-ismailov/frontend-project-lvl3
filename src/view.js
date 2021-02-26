@@ -122,12 +122,12 @@ const addDataToModal = (postData) => {
 export const handleProcessState = (processState, elements, error) => {
   switch (processState) {
     case 'filling':
-      break;
-    case 'failed':
-      renderFeedback(error, elements.feedback);
       elements.submitButton.disabled = false;
       elements.input.readOnly = false;
       elements.input.focus();
+      break;
+    case 'failed':
+      renderFeedback(error, elements.feedback);
       break;
     case 'sending':
       elements.submitButton.disabled = true;
@@ -135,10 +135,7 @@ export const handleProcessState = (processState, elements, error) => {
       break;
     case 'finished':
       renderFeedback('success', elements.feedback);
-      elements.submitButton.disabled = false;
-      elements.input.readOnly = false;
       elements.input.value = '';
-      elements.input.focus();
       break;
     default:
       throw new Error(`Unknown process state: ${processState}`);

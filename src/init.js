@@ -57,11 +57,13 @@ const addNewRssFeed = (watchedState) => {
       watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
+      console.log(e); // for debugging
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
       watchedState.error = message;
       watchedState.processState = processStateMap.failed;
+      watchedState.processState = processStateMap.filling;
     });
 };
 
@@ -138,9 +140,10 @@ export default () => {
       case 'form':
         renderInputError(value.valid, elements.input);
         break;
-      // case 'error':
-      //   renderFeedback(value, elements.feedback);
-      //   break;
+      case 'error':
+        // renderFeedback вызывает processState по необходимости.
+        // renderFeedback(value, elements.feedback);
+        break;
       case 'feeds':
       case 'posts':
         handleData(path, value, elements, watchedState.uiState.viewedPostsIds);
