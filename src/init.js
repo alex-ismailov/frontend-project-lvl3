@@ -57,7 +57,7 @@ const addNewRssFeed = (watchedState) => {
       watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
-      console.log(e); // for debugging
+      // console.log(e); // for debugging
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
@@ -114,8 +114,6 @@ export default () => {
       feeds: [],
       posts: [],
     },
-    // feeds: [],
-    // posts: [],
     uiState: {
       modal: {
         currentPostId: null,
