@@ -4,8 +4,8 @@
   "description": "RSS aggregator",
   "main": "src/js/init.js",
   "scripts": {
-    "dev": "webpack serve --config ./webpack-configs/webpack.dev.conf.cjs --host 0.0.0.0 --open --useLocalIp",
-    "build": "webpack --config ./webpack-configs/webpack.build.conf.cjs",
+    "dev": "webpack serve --host 0.0.0.0 --open --useLocalIp",
+    "build": "NODE_ENV=production webpack",
     "test-watch": "npm run test -- --watchAll",
     "test": "npx -n --experimental-vm-modules jest",
     "test-coverage": "npm run test -- --coverage --coverageProvider=v8",
