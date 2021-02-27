@@ -10,7 +10,9 @@ import {
   handleProcessState, handleUIState, renderInputError, renderData,
 } from './view.js';
 import parse from './parser.js';
-// import parser2 from './parser-2.js';
+
+import parse2 from './parser-2.js';
+import normalize from '../w_normalize.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
@@ -39,8 +41,32 @@ const addNewRssFeed = (watchedState) => {
       if (!rawData.startsWith('<?xml')) {
         throw new Error('notValidRssFormat');
       }
+
       const feedData = parse(rawData, feedUrl);
+
       // console.log(parser2(rawData, feedUrl)); <= DRAFT of new parser
+
+      const channel = parse2(rawData, feedUrl);
+      // const channelData = normalize(channel);
+
+      // const channelData = {
+      //   feed: {
+      //     id: 1,
+      //     title: 'hjkjh',
+      //     link,
+      //     description: 'jkljlj',
+      //   },
+      //   posts: [
+      //     {
+      //       id: 2,
+      //       feedId: 1,
+      //       title: 'hjkjh',
+      //       link,
+      //       description: 'jkljlj',
+      //     },
+      //     ...
+      //   ],
+      // }
 
       watchedState.data = {
         ...watchedState.data, // <= ask Ira
@@ -57,7 +83,7 @@ const addNewRssFeed = (watchedState) => {
       watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
-      // console.log(e); // for debugging
+      console.log(e); // for debugging
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
@@ -71,7 +97,7 @@ const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState.data;
   const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link), { timeout: TIMEOUT })
-    .then((v) => ({ result: 'success', value: v, feedUrl: link }))
+    .then((v) => ({ result: 'success', value: v, feedUrl: link })) // добавить feedId, даже лучше протащить здесь сам фид чтобы потом достать его id для normalize функции
     .catch((e) => ({ result: 'error', error: e, feedUrl: link })));
   const promise = Promise.all(promises);
 
@@ -84,10 +110,14 @@ const watchForNewPosts = (watchedState, timerId) => {
       }
       const { value, feedUrl } = response;
       const feedData = parse(value.data.contents, feedUrl);
+      // Сюда надо протащить feed чтобы взять нужнве поля:
+      // link(для парсера выше) и feedId
+      // const feedData = normalize(data, feedId)
       return feedData.posts;
     });
 
     const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
+
     if (!_.isEmpty(newPosts)) {
       watchedState.data = {
         ...watchedState.data,
