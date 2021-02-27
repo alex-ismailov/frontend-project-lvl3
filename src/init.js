@@ -10,9 +10,7 @@ import {
   handleProcessState, handleUIState, renderInputError, renderData,
 } from './view.js';
 import parse from './parser.js';
-
-import parse2 from './parser-2.js';
-import normalize from '../w_normalize.js';
+import normalize from './normalizer.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
@@ -41,36 +39,12 @@ const addNewRssFeed = (watchedState) => {
       if (!rawData.startsWith('<?xml')) {
         throw new Error('notValidRssFormat');
       }
-
-      const feedData = parse(rawData, feedUrl);
-
-      // console.log(parser2(rawData, feedUrl)); <= DRAFT of new parser
-
-      const channel = parse2(rawData, feedUrl);
-      // const channelData = normalize(channel);
-
-      // const channelData = {
-      //   feed: {
-      //     id: 1,
-      //     title: 'hjkjh',
-      //     link,
-      //     description: 'jkljlj',
-      //   },
-      //   posts: [
-      //     {
-      //       id: 2,
-      //       feedId: 1,
-      //       title: 'hjkjh',
-      //       link,
-      //       description: 'jkljlj',
-      //     },
-      //     ...
-      //   ],
-      // }
+      const parsedFeed = parse(rawData, feedUrl);
+      const feedData = normalize(parsedFeed);
 
       watchedState.data = {
         ...watchedState.data, // <= ask Ira
-        feeds: [feedData.feedInfo, ...watchedState.data.feeds],
+        feeds: [feedData.feed, ...watchedState.data.feeds],
         posts: [...feedData.posts, ...watchedState.data.posts],
       };
       watchedState.form = {
@@ -83,7 +57,9 @@ const addNewRssFeed = (watchedState) => {
       watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
-      console.log(e); // for debugging
+      // console.log(e); // for debugging
+      // Почему срабатывает этот catch, несмотря на то, что прога работает?
+      // console.log('TADAD #$%#%'); //
       const message = e.message === 'notValidRssFormat'
         ? i18next.t('errors.notValidRssFormat')
         : i18next.t('errors.networkError');
@@ -109,15 +85,12 @@ const watchForNewPosts = (watchedState, timerId) => {
         return [];
       }
       const { value, feedUrl } = response;
-      const feedData = parse(value.data.contents, feedUrl);
-      // Сюда надо протащить feed чтобы взять нужнве поля:
-      // link(для парсера выше) и feedId
-      // const feedData = normalize(data, feedId)
+      const parsedFeed = parse(value.data.contents, feedUrl);
+      const feedData = normalize(parsedFeed);
       return feedData.posts;
     });
 
     const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
-
     if (!_.isEmpty(newPosts)) {
       watchedState.data = {
         ...watchedState.data,
