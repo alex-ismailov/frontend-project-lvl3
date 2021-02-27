@@ -72,9 +72,10 @@ const addNewRssFeed = (watchedState) => {
 const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState.data;
-  const promises = feeds.map((feed) => axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
-    .then((v) => ({ result: 'success', value: v, feed }))
-    .catch((e) => ({ result: 'error', error: e, feed })));
+  const promises = feeds.map((feed) => (
+    axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
+      .then((v) => ({ result: 'success', value: v, feed }))
+      .catch((e) => ({ result: 'error', error: e, feed }))));
   const promise = Promise.all(promises);
 
   return promise.then((responses) => {
