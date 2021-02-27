@@ -72,9 +72,9 @@ const addNewRssFeed = (watchedState) => {
 const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState.data;
-  const promises = feeds.map(({ link }) => axios.get(buildAllOriginsUrl(link), { timeout: TIMEOUT })
-    .then((v) => ({ result: 'success', value: v, feedUrl: link })) // добавить feedId, даже лучше протащить здесь сам фид чтобы потом достать его id для normalize функции
-    .catch((e) => ({ result: 'error', error: e, feedUrl: link })));
+  const promises = feeds.map((feed) => axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
+    .then((v) => ({ result: 'success', value: v, feed }))
+    .catch((e) => ({ result: 'error', error: e, feed })));
   const promise = Promise.all(promises);
 
   return promise.then((responses) => {
@@ -84,9 +84,9 @@ const watchForNewPosts = (watchedState, timerId) => {
         // console.log(`Impossible to get data from: ${response.feedUrl}`);
         return [];
       }
-      const { value, feedUrl } = response;
-      const parsedFeed = parse(value.data.contents, feedUrl);
-      const feedData = normalize(parsedFeed);
+      const { value, feed: { link, id } } = response;
+      const parsedFeed = parse(value.data.contents, link);
+      const feedData = normalize(parsedFeed, id);
       return feedData.posts;
     });
 
