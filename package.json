@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "description": "RSS aggregator",
-  "main": "src/js/init.js",
+  "main": "src/init.js",
   "scripts": {
     "dev": "webpack serve --host 0.0.0.0 --open --useLocalIp",
     "build": "NODE_ENV=production webpack",
