@@ -18,7 +18,7 @@ module.exports = {
     path: PATHS.public,
     filename: '[name].js',
   },
-  devtool: process.env.NODE_ENV ? false : 'source-map',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   module: {
     rules: [
       {
