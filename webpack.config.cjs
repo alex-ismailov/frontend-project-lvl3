@@ -9,20 +9,14 @@ const PATHS = {
   public: path.join(__dirname, './public'),
 };
 
-
 module.exports = {
-  // Не забыть указать в package.json
-  // NODE_ENV=production npx webpack
-  // см. hexlet boilerplate
   mode: process.env.NODE_ENV || 'development',
-  target: 'web', // ????
   entry: {
     main: PATHS.src,
   },
   output: {
     path: PATHS.public,
     filename: '[name].js',
-    // publicPath: '/',
   },
   devtool: 'eval-source-map',// Уточнить чтобы не слить в инет карту сайта
   module: {
@@ -54,8 +48,6 @@ module.exports = {
     ],
   },
   devServer: {
-    // contentBase: baseWebpackConfig.externals.paths.dist,
-    // contentBase: '/',
     compress: true,
     port: 9000,
     overlay: {
