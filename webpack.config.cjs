@@ -5,8 +5,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
 const PATHS = {
-  src: path.join(__dirname, './src'),
-  public: path.join(__dirname, './public'),
+  src: path.join(__dirname, 'src'),
+  public: path.join(__dirname, 'public'),
 };
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
     path: PATHS.public,
     filename: '[name].js',
   },
-  devtool: 'eval-source-map',// Уточнить чтобы не слить в инет карту сайта
+  devtool: process.env.NODE_ENV ? false : 'source-map',
   module: {
     rules: [
       {
@@ -62,10 +62,6 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: `index.html`,
-    }),
-    // Уточнить чтобы не слить в инет карту сайта
-    new webpack.SourceMapDevToolPlugin({
-      filename: '[file].map',
     }),
   ],
 };
