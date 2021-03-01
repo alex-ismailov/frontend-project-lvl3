@@ -21,22 +21,23 @@ export const renderFeedback = (message, element) => {
   element.classList.add('text-success');
 };
 
-const addTitle = (titleContent, element) => {
+const buildTitle = (titleContent) => {
   const title = document.createElement('h2');
   title.textContent = titleContent;
-  element.append(title);
+  return title;
 };
 
-const addItemsContainer = (element) => {
+const buildItemsContainer = () => {
   const ul = document.createElement('ul');
   ul.classList.add('list-group', 'mb-5');
-  element.append(ul);
+  return ul;
 };
 
 const renderFeeds = (feeds, feedsBlock) => {
   if (!feedsBlock.hasChildNodes()) {
-    addTitle(i18next.t('feeds'), feedsBlock);
-    addItemsContainer(feedsBlock);
+    const title = buildTitle(i18next.t('feeds'));
+    const itemsContainer = buildItemsContainer();
+    feedsBlock.append(title, itemsContainer);
   }
   const feedsItemContainer = feedsBlock.querySelector('.list-group');
   feedsItemContainer.innerHTML = '';
@@ -79,8 +80,9 @@ const buildPostButton = (post) => {
 
 const renderPosts = (posts, postsBlock, viewedPostsIds) => {
   if (!postsBlock.hasChildNodes()) {
-    addTitle(i18next.t('posts'), postsBlock);
-    addItemsContainer(postsBlock);
+    const title = buildTitle(i18next.t('posts'));
+    const itemsContainer = buildItemsContainer();
+    postsBlock.append(title, itemsContainer);
   }
   const postItemsContainer = postsBlock.querySelector('.list-group');
   postItemsContainer.innerHTML = '';
