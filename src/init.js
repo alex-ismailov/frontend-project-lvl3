@@ -139,8 +139,6 @@ export default () => {
     postsBlock: document.querySelector('.posts'),
   };
 
-  elements.input.focus();
-
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'processState':
