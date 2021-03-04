@@ -126,7 +126,6 @@ export const handleProcessState = (processState, elements, error) => {
     case 'filling':
       elements.submitButton.disabled = false;
       elements.input.readOnly = false;
-      elements.input.focus();
       break;
     case 'failed':
       renderFeedback(error, elements.feedback);
