@@ -91,10 +91,10 @@ const renderPosts = (posts, postsBlock, viewedPostsIds) => {
     item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
     const postLink = buildPostLink(post);
-    const fontWeight = viewedPostsIds.has(post.id)
-      ? 'font-weight-normal'
-      : 'font-weight-bold';
-    postLink.classList.add(fontWeight);
+    const fontWeights = viewedPostsIds.has(post.id)
+      ? ['fw-normal', 'font-weight-normal']
+      : ['fw-bold', 'font-weight-bold'];
+    postLink.classList.add(...fontWeights);
 
     const button = buildPostButton(post);
 
@@ -105,8 +105,8 @@ const renderPosts = (posts, postsBlock, viewedPostsIds) => {
 
 const renderViewedPost = (id) => {
   const post = document.querySelector(`[data-id="${id}"]`);
-  post.classList.remove('font-weight-bold');
-  post.classList.add('font-weight-normal');
+  post.classList.remove('fw-bold', 'font-weight-bold');
+  post.classList.add('fw-normal', 'font-weight-normal');
 };
 
 const addDataToModal = (postData) => {
