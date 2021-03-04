@@ -24,11 +24,12 @@ const processStateMap = {
 const buildAllOriginsUrl = (rssUrl) => {
   const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
   const corsProxyApi = '/get';
-  const params = new URLSearchParams();
-  params.append('disableCache', true);
-  params.append('url', rssUrl);
+  const url = new URL(`${corsProxy}${corsProxyApi}`);
+  const params = url.searchParams;
+  params.set('disableCache', true);
+  params.set('url', rssUrl);
 
-  return `${corsProxy}${corsProxyApi}?${params.toString()}`;
+  return url.toString();
 };
 
 const addNewRssFeed = (watchedState) => {
