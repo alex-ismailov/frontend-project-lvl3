@@ -10,6 +10,10 @@ const PATHS = {
 };
 
 module.exports = {
+  /* Несмотря на то, что в доке сказано
+  target: 'web' <== can be omitted as default is 'web'
+  у меня без этого не работает livereload */
+  target: 'web',
   mode: process.env.NODE_ENV || 'development',
   entry: {
     main: PATHS.src,
@@ -22,23 +26,11 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.scss$/i,
+        test: /\.css$/i,
         use: [
           MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
-            options: {
-              sourceMap: true,
-            },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: { sourceMap: true }
-            },
-          },
-          {
-            loader: 'sass-loader',
             options: {
               sourceMap: true,
             },
@@ -48,6 +40,7 @@ module.exports = {
     ],
   },
   devServer: {
+    // contentBase: PATHS.public,
     compress: true,
     port: 9000,
     overlay: {
