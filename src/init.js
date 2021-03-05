@@ -105,12 +105,10 @@ const watchForNewPosts = (watchedState, timerId) => {
 };
 
 // *** MODEL ***
-export default () => {
-  i18next.init({
-    fallbackLng: 'ru',
-    resources,
-  });
-
+export default () => i18next.init({
+  fallbackLng: 'ru',
+  resources,
+}).then(() => {
   const state = {
     processState: processStateMap.filling,
     error: '',
@@ -213,4 +211,4 @@ export default () => {
 
   // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
   const timerId = setTimeout(() => watchForNewPosts(watchedState, timerId), DELAY);
-};
+});
