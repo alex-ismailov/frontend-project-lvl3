@@ -97,7 +97,7 @@ test('validation unique url', async () => {
   expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
 });
 
-test('Network error', async () => {
+test.skip('Network error', async () => {
   const error = { message: 'no internet', isAxiosError: true };
   nock(corsProxy)
     .defaultReplyHeaders({
