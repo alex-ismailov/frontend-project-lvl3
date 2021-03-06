@@ -12,5 +12,8 @@ export default {
     preview: 'Preview',
     feeds: 'Feeds',
     posts: 'Posts',
+    i18next: {
+      initialized: 'i18next initialized',
+    },
   },
 };
