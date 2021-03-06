@@ -169,6 +169,26 @@ const handleUIState = (path, value, posts) => {
       throw new Error(`Unknown uiState path: ${path}`);
   }
 };
+
+// Alex Ismailov, [05.03.21 23:46]
+// [In reply to Irina]
+// Насколько я понял из глобального объекта i18next который мы инициализируем в самом начале.
+
+// Но без импорта i18next во src/view.js , i18next.t('key) - не работает
+
+// Irina, [05.03.21 23:47]
+// [In reply to Alex Ismailov]
+// надо им явно передать эту функцию
+
+// Alex Ismailov, [05.03.21 23:50]
+// [In reply to Irina]
+// т.е. для каждого рендера который требует текст,
+// внутри switch из watchedState надо передавать i18next.t помимо остальных аргументов ?
+
+// Irina, [05.03.21 23:51]
+// всего один раз надо передать
+// подумай где это удобно сделать
+
 /* Для того что получить watchedState нужно использовать одну функцию,
 все остальное должно быть скрыто в отдельном модуле. */
 export default (state, elements, translate) => {
