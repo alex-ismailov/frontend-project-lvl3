@@ -1,8 +1,8 @@
 /* eslint no-param-reassign: 0 */
 
-import i18next from 'i18next';
+import onChange from 'on-change';
 
-export const renderInputError = (isValid, input) => {
+const renderInputError = (isValid, input) => {
   if (!isValid) {
     input.classList.add('is-invalid');
     return;
@@ -10,14 +10,14 @@ export const renderInputError = (isValid, input) => {
   input.classList.remove('is-invalid');
 };
 
-export const renderFeedback = (message, element) => {
+const renderFeedback = (message, element, translate) => {
   if (message !== 'success') {
     element.textContent = message;
     element.classList.add('text-danger');
     return;
   }
   element.classList.remove('text-danger');
-  element.textContent = i18next.t(message);
+  element.textContent = translate(message);
   element.classList.add('text-success');
 };
 
@@ -33,9 +33,9 @@ const buildItemsContainer = () => {
   return ul;
 };
 
-const renderFeeds = (feeds, feedsBlock) => {
+const renderFeeds = (feeds, feedsBlock, translate) => {
   if (!feedsBlock.hasChildNodes()) {
-    const title = buildTitle(i18next.t('feeds'));
+    const title = buildTitle(translate('feeds'));
     const itemsContainer = buildItemsContainer();
     feedsBlock.append(title, itemsContainer);
   }
@@ -67,20 +67,20 @@ const buildPostLink = (post) => {
   return link;
 };
 
-const buildPostButton = (post) => {
+const buildPostButton = (post, translate) => {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.classList.add('btn', 'btn-primary', 'btn-sm');
   button.setAttribute('data-id', post.id);
   button.setAttribute('data-bs-toggle', 'modal');
   button.setAttribute('data-bs-target', '#modal');
-  button.textContent = i18next.t('preview');
+  button.textContent = translate('preview');
   return button;
 };
 
-const renderPosts = (posts, postsBlock, viewedPostsIds) => {
+const renderPosts = (posts, postsBlock, viewedPostsIds, translate) => {
   if (!postsBlock.hasChildNodes()) {
-    const title = buildTitle(i18next.t('posts'));
+    const title = buildTitle(translate('posts'));
     const itemsContainer = buildItemsContainer();
     postsBlock.append(title, itemsContainer);
   }
@@ -96,7 +96,7 @@ const renderPosts = (posts, postsBlock, viewedPostsIds) => {
       : ['fw-bold', 'font-weight-bold'];
     postLink.classList.add(...fontWeights);
 
-    const button = buildPostButton(post);
+    const button = buildPostButton(post, translate);
 
     item.append(postLink, button);
     postItemsContainer.append(item);
@@ -121,21 +121,21 @@ const addDataToModal = (postData) => {
   modalWindowLink.href = link;
 };
 
-export const handleProcessState = (processState, elements, error) => {
+const handleProcessState = (processState, elements, error, translate) => {
   switch (processState) {
     case 'filling':
       elements.submitButton.disabled = false;
       elements.input.readOnly = false;
       break;
     case 'failed':
-      renderFeedback(error, elements.feedback);
+      renderFeedback(error, elements.feedback, translate);
       break;
     case 'sending':
       elements.submitButton.disabled = true;
       elements.input.readOnly = true;
       break;
     case 'finished':
-      renderFeedback('success', elements.feedback);
+      renderFeedback('success', elements.feedback, translate);
       elements.input.value = '';
       break;
     default:
@@ -143,18 +143,18 @@ export const handleProcessState = (processState, elements, error) => {
   }
 };
 
-export const renderData = (value, previousValue, elements, viewedPostsIds) => {
+const renderData = (value, previousValue, elements, viewedPostsIds, translate) => {
   const { feeds, posts } = value;
   const { feeds: previousFeeds } = previousValue;
   if (feeds.length === previousFeeds.length) {
-    renderPosts(posts, elements.postsBlock, viewedPostsIds);
+    renderPosts(posts, elements.postsBlock, viewedPostsIds, translate);
     return;
   }
-  renderFeeds(feeds, elements.feedsBlock);
-  renderPosts(posts, elements.postsBlock, viewedPostsIds);
+  renderFeeds(feeds, elements.feedsBlock, translate);
+  renderPosts(posts, elements.postsBlock, viewedPostsIds, translate);
 };
 
-export const handleUIState = (path, value, posts) => {
+const handleUIState = (path, value, posts) => {
   switch (path) {
     case 'uiState.modal.currentPostId': {
       const post = posts.find(({ id }) => id === value);
@@ -168,4 +168,29 @@ export const handleUIState = (path, value, posts) => {
     default:
       throw new Error(`Unknown uiState path: ${path}`);
   }
+};
+/* Для того что получить watchedState нужно использовать одну функцию,
+все остальное должно быть скрыто в отдельном модуле. */
+export default (state, elements, translate) => {
+  const watchedState = onChange(state, (path, value, previousValue) => {
+    switch (path) {
+      case 'processState':
+        handleProcessState(value, elements, watchedState.error, translate);
+        break;
+      case 'form':
+        renderInputError(value.valid, elements.input);
+        break;
+      case 'data':
+        renderData(value, previousValue, elements, watchedState.uiState.viewedPostsIds, translate);
+        break;
+      case 'uiState.modal.currentPostId':
+      case 'uiState.currentViewedPostId':
+        handleUIState(path, value, watchedState.data.posts);
+        break;
+      default:
+        break;
+    }
+  });
+
+  return watchedState;
 };
