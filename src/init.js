@@ -108,7 +108,6 @@ export default () => {
     fallbackLng: 'ru',
     resources,
   }).then((translate) => {
-    // console.log(translate('i18next.initialized'));
     const state = {
       processState: processStateMap.filling,
       error: '',
@@ -136,9 +135,10 @@ export default () => {
       submitButton: document.querySelector('button[aria-label=add]'),
       feedsBlock: document.querySelector('.feeds'),
       postsBlock: document.querySelector('.posts'),
+      modal: document.querySelector('#modal'),
     };
 
-    const watchedState = buildWatchedState(state, elements, translate);
+    const watchedState = buildWatchedState(elements, translate)(state);
 
     // *** VIEW ***
     // look at src/js/view.js
