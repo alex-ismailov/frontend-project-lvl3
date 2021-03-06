@@ -2,13 +2,10 @@
 
 import i18next from 'i18next';
 import * as yup from 'yup';
-import onChange from 'on-change';
 import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
-import {
-  handleProcessState, handleUIState, renderInputError, renderData,
-} from './view.js';
+import buildWatchedState from './view.js';
 import parse from './parser.js';
 import normalize from './normalizer.js';
 
@@ -32,7 +29,7 @@ const buildAllOriginsUrl = (rssUrl) => {
   return url.toString();
 };
 
-const addNewRssFeed = (watchedState) => {
+const addNewRssFeed = (watchedState, translate) => {
   const { form: { value: feedUrl } } = watchedState;
   axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
@@ -62,8 +59,8 @@ const addNewRssFeed = (watchedState) => {
       // Почему срабатывает этот catch, несмотря на то, что прога работает?
       // console.log('TADAD #$%#%'); //
       const message = e.message === 'notValidRssFormat'
-        ? i18next.t('errors.notValidRssFormat')
-        : i18next.t('errors.networkError');
+        ? translate('errors.notValidRssFormat')
+        : translate('errors.networkError');
       watchedState.error = message;
       watchedState.processState = processStateMap.failed;
       watchedState.processState = processStateMap.filling;
@@ -105,110 +102,96 @@ const watchForNewPosts = (watchedState, timerId) => {
 };
 
 // *** MODEL ***
-export default () => i18next.init({
-  fallbackLng: 'ru',
-  resources,
-}).then(() => {
-  const state = {
-    processState: processStateMap.filling,
-    error: '',
-    form: {
-      valid: true,
-      value: '',
-    },
-    data: {
-      feeds: [],
-      posts: [],
-    },
-    uiState: {
-      modal: {
-        currentPostId: null,
+export default () => {
+  const i18nextInstance = i18next.createInstance();
+  return i18nextInstance.init({
+    fallbackLng: 'ru',
+    resources,
+  }).then((translate) => {
+    // console.log(translate('i18next.initialized'));
+    const state = {
+      processState: processStateMap.filling,
+      error: '',
+      form: {
+        valid: true,
+        value: '',
       },
-      currentViewedPostId: null,
-      viewedPostsIds: new Set(),
-    },
-  };
+      data: {
+        feeds: [],
+        posts: [],
+      },
+      uiState: {
+        modal: {
+          currentPostId: null,
+        },
+        currentViewedPostId: null,
+        viewedPostsIds: new Set(),
+      },
+    };
 
-  const elements = {
-    form: document.getElementById('rssForm'),
-    input: document.getElementById('rssFormInput'),
-    feedback: document.querySelector('.feedback'),
-    submitButton: document.querySelector('button[aria-label=add]'),
-    feedsBlock: document.querySelector('.feeds'),
-    postsBlock: document.querySelector('.posts'),
-  };
+    const elements = {
+      form: document.getElementById('rssForm'),
+      input: document.getElementById('rssFormInput'),
+      feedback: document.querySelector('.feedback'),
+      submitButton: document.querySelector('button[aria-label=add]'),
+      feedsBlock: document.querySelector('.feeds'),
+      postsBlock: document.querySelector('.posts'),
+    };
 
-  const watchedState = onChange(state, (path, value, previousValue) => {
-    switch (path) {
-      case 'processState':
-        handleProcessState(value, elements, watchedState.error);
-        break;
-      case 'form':
-        renderInputError(value.valid, elements.input);
-        break;
-      case 'data':
-        renderData(value, previousValue, elements, watchedState.uiState.viewedPostsIds);
-        break;
-      case 'uiState.modal.currentPostId':
-      case 'uiState.currentViewedPostId':
-        handleUIState(path, value, watchedState.data.posts);
-        break;
-      default:
-        break;
-    }
+    const watchedState = buildWatchedState(state, elements, translate);
+
+    // *** VIEW ***
+    // look at src/js/view.js
+    // ************
+
+    const schema = yup
+      .string()
+      .url(translate('errors.notValidUrl'))
+      .test('unique', translate('errors.feedExists'),
+        (value) => !watchedState.data.feeds.some((feed) => feed.link === value));
+
+    const validate = (value) => {
+      try {
+        schema.validateSync(value, { abortEarly: false });
+        return null;
+      } catch (e) {
+        return e.message;
+      }
+    };
+
+    // *** CONTROLLERS ***
+    elements.form.addEventListener('input', (e) => {
+      const { target: { value } } = e;
+      watchedState.form.value = value;
+    });
+
+    elements.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const error = validate(watchedState.form.value);
+      if (error) {
+        watchedState.error = error;
+        watchedState.processState = processStateMap.failed;
+        watchedState.form = {
+          ...watchedState.form,
+          valid: false,
+        };
+        return;
+      }
+      addNewRssFeed(watchedState, translate);
+      watchedState.processState = processStateMap.sending;
+    });
+
+    elements.postsBlock.addEventListener('click', (e) => {
+      const { target } = e;
+      const postId = target.dataset.id;
+      if (target.classList.contains('btn')) {
+        watchedState.uiState.modal.currentPostId = postId;
+      }
+      watchedState.uiState.currentViewedPostId = postId;
+      watchedState.uiState.viewedPostsIds.add(postId);
+    });
+
+    // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
+    const timerId = setTimeout(() => watchForNewPosts(watchedState, timerId), DELAY);
   });
-
-  // *** VIEW ***
-  // look at src/js/view.js
-  // ************
-
-  const schema = yup
-    .string()
-    .url(i18next.t('errors.notValidUrl'))
-    .test('unique', i18next.t('errors.feedExists'),
-      (value) => !watchedState.data.feeds.some((feed) => feed.link === value));
-
-  const validate = (value) => {
-    try {
-      schema.validateSync(value, { abortEarly: false });
-      return null;
-    } catch (e) {
-      return e.message;
-    }
-  };
-
-  // *** CONTROLLERS ***
-  elements.form.addEventListener('input', (e) => {
-    const { target: { value } } = e;
-    watchedState.form.value = value;
-  });
-
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const error = validate(watchedState.form.value);
-    if (error) {
-      watchedState.error = error;
-      watchedState.processState = processStateMap.failed;
-      watchedState.form = {
-        ...watchedState.form,
-        valid: false,
-      };
-      return;
-    }
-    addNewRssFeed(watchedState);
-    watchedState.processState = processStateMap.sending;
-  });
-
-  elements.postsBlock.addEventListener('click', (e) => {
-    const { target } = e;
-    const postId = target.dataset.id;
-    if (target.classList.contains('btn')) {
-      watchedState.uiState.modal.currentPostId = postId;
-    }
-    watchedState.uiState.currentViewedPostId = postId;
-    watchedState.uiState.viewedPostsIds.add(postId);
-  });
-
-  // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
-  const timerId = setTimeout(() => watchForNewPosts(watchedState, timerId), DELAY);
-});
+};
