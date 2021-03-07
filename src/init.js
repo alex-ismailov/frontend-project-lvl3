@@ -29,12 +29,11 @@ const buildAllOriginsUrl = (rssUrl) => {
   return url.toString();
 };
 
-const addNewRssFeed = (watchedState, translate) => {
-  const { form: { value: feedUrl } } = watchedState;
-  axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
+const addNewRssFeed = (url, watchedState, translate) => {
+  axios.get(buildAllOriginsUrl(url), { timeout: TIMEOUT })
     .then((response) => {
       const rawData = response.data.contents;
-      const parsedFeed = parse(rawData, feedUrl);
+      const parsedFeed = parse(rawData, url);
       const feedData = normalize(parsedFeed);
 
       watchedState.data = {
@@ -157,14 +156,10 @@ export default () => {
     };
 
     // *** CONTROLLERS ***
-    elements.form.addEventListener('input', (e) => {
-      const { target: { value } } = e;
-      watchedState.form.value = value;
-    });
-
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const error = validate(watchedState.form.value);
+      const { value } = e.target.elements.url;
+      const error = validate(value);
       if (error) {
         watchedState.error = error;
         watchedState.processState = processStateMap.failed;
@@ -174,7 +169,7 @@ export default () => {
         };
         return;
       }
-      addNewRssFeed(watchedState, translate);
+      addNewRssFeed(value, watchedState, translate);
       watchedState.processState = processStateMap.sending;
     });
 
