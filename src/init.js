@@ -52,8 +52,6 @@ const addNewRssFeed = (url, watchedState, translate) => {
     })
     .catch((e) => {
       // console.log(e); // for debugging
-      // Почему срабатывает этот catch, несмотря на то, что прога работает?
-      // console.log('TADAD #$%#%'); //
       const message = e.message === 'notValidRssFormat'
         ? translate('errors.notValidRssFormat')
         : translate('errors.networkError');
@@ -63,43 +61,8 @@ const addNewRssFeed = (url, watchedState, translate) => {
     });
 };
 
-// const watchForNewPosts = (watchedState, timerId) => {
-//   clearTimeout(timerId);
-//   const { feeds } = watchedState.data;
-//   const promises = feeds.map((feed) => (
-//     axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
-//       .then((v) => ({ result: 'success', value: v, feed }))
-//       .catch((e) => ({ result: 'error', error: e, feed }))));
-//   const promise = Promise.all(promises);
-
-//   return promise.then((responses) => {
-//     const freshPosts = responses.flatMap((response) => {
-//       if (response.result === 'error') {
-//         // TODO: надо как-то обработать этот кейс
-//         // console.log(`Impossible to get data from: ${response.feedUrl}`);
-//         return [];
-//       }
-//       const { value, feed: { link, id } } = response;
-//       const parsedFeed = parse(value.data.contents, link);
-//       const feedData = normalize(parsedFeed, id);
-//       return feedData.posts;
-//     });
-
-//     const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
-//     if (!_.isEmpty(newPosts)) {
-//       watchedState.data = {
-//         ...watchedState.data,
-//         posts: [...newPosts, ...watchedState.data.posts],
-//       };
-//     }
-
-//     const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
-//   });
-// };
-
 const watchForNewPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
-
   const { feeds } = watchedState.data;
   feeds.forEach((feed) => {
     axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
@@ -107,11 +70,9 @@ const watchForNewPosts = (watchedState, timerId) => {
         const { contents } = response.data;
         const parsedFeed = parse(contents, feed.link);
         const freshData = normalize(parsedFeed, feed.id);
-
         const currentFeedPosts = watchedState.data.posts.filter(({ feedId }) => feedId === feed.id);
-        const freshPosts = freshData.posts;
 
-        const newPosts = _.differenceBy(currentFeedPosts, freshPosts, 'title');
+        const newPosts = _.differenceBy(freshData.posts, currentFeedPosts, 'title');
         if (!_.isEmpty(newPosts)) {
           watchedState.data = {
             ...watchedState.data,
@@ -119,38 +80,10 @@ const watchForNewPosts = (watchedState, timerId) => {
           };
         }
       })
-      .catch((e) => {});
+      .catch((e) => console.log(`${e}; Impossible to get data from: ${feed.link}`));
   });
 
-  const promises = feeds.map((feed) => (
-    axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
-      .then((v) => ({ result: 'success', value: v, feed }))
-      .catch((e) => ({ result: 'error', error: e, feed }))));
-  const promise = Promise.all(promises);
-
-  return promise.then((responses) => {
-    const freshPosts = responses.flatMap((response) => {
-      if (response.result === 'error') {
-        // TODO: надо как-то обработать этот кейс
-        // console.log(`Impossible to get data from: ${response.feedUrl}`);
-        return [];
-      }
-      const { value, feed: { link, id } } = response;
-      const parsedFeed = parse(value.data.contents, link);
-      const feedData = normalize(parsedFeed, id);
-      return feedData.posts;
-    });
-
-    const newPosts = _.differenceBy(freshPosts, watchedState.data.posts, 'title');
-    if (!_.isEmpty(newPosts)) {
-      watchedState.data = {
-        ...watchedState.data,
-        posts: [...newPosts, ...watchedState.data.posts],
-      };
-    }
-
-    const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
-  });
+  const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
 };
 
 // *** MODEL ***
