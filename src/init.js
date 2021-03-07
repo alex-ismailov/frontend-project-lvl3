@@ -132,12 +132,20 @@ export default () => {
     const schema = yup
       .string()
       .url(translate('errors.notValidUrl'))
-      .test('unique', translate('errors.feedExists'),
-        (value) => !watchedState.data.feeds.some((feed) => feed.link === value));
+      .notOneOf([])
+      .when('$currentFeedLinks', (currentFeedLinks, currentSchema) => (currentSchema.notOneOf(currentFeedLinks, translate('errors.feedExists'))));
 
     const validate = (value) => {
       try {
-        schema.validateSync(value, { abortEarly: false });
+        schema.validateSync(
+          value,
+          {
+            abortEarly: false,
+            context: {
+              currentFeedLinks: watchedState.data.feeds.map(({ link }) => link),
+            },
+          },
+        );
         return null;
       } catch (e) {
         return e.message;
