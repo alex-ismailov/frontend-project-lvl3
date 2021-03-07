@@ -34,9 +34,6 @@ const addNewRssFeed = (watchedState, translate) => {
   axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
       const rawData = response.data.contents;
-      if (!rawData.startsWith('<?xml')) {
-        throw new Error('notValidRssFormat');
-      }
       const parsedFeed = parse(rawData, feedUrl);
       const feedData = normalize(parsedFeed);
 

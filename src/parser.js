@@ -1,7 +1,9 @@
 export default (data, feedUrl) => {
+  if (!data.startsWith('<?xml')) {
+    throw new Error('notValidRssFormat');
+  }
   const parser = new DOMParser();
   const feedXmlDocument = parser.parseFromString(data, 'application/xml');
-
   const xmlItems = feedXmlDocument.querySelectorAll('item');
   const items = Array.from(xmlItems).map((item) => {
     const title = item.querySelector('title').textContent;
