@@ -180,13 +180,12 @@ export default () => {
     });
 
     elements.postsBlock.addEventListener('click', (e) => {
-      const { target } = e;
-      const postId = target.dataset.id;
-      if (target.classList.contains('btn')) {
-        watchedState.uiState.modal.currentPostId = postId;
+      const { id, isButton } = e.target.dataset;
+      if (isButton) {
+        watchedState.uiState.modal.currentPostId = id;
       }
-      watchedState.uiState.currentViewedPostId = postId;
-      watchedState.uiState.viewedPostsIds.add(postId);
+      watchedState.uiState.currentViewedPostId = id;
+      watchedState.uiState.viewedPostsIds.add(id);
     });
 
     // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
