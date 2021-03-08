@@ -94,11 +94,7 @@ export default (elements, translate) => {
   };
 
   const renderPosts = (posts, viewedPostsIds) => {
-    if (!postsBlock.hasChildNodes()) {
-      const title = buildTitle(translate('posts'));
-      const itemsContainer = buildItemsContainer();
-      postsBlock.append(title, itemsContainer);
-    }
+    initContainer(postsBlock, translate('posts'));
     const postItemsContainer = postsBlock.querySelector('.list-group');
     postItemsContainer.innerHTML = '';
 
