@@ -46,6 +46,8 @@ export default (elements, translate) => {
     }
     const feedsItemContainer = feedsBlock.querySelector('.list-group');
     feedsItemContainer.innerHTML = '';
+
+    const itemsFragment = new DocumentFragment();
     feeds.forEach((feed) => {
       const title = document.createElement('h3');
       title.textContent = feed.title;
@@ -57,8 +59,9 @@ export default (elements, translate) => {
       item.classList.add('list-group-item', 'border');
 
       item.append(title, description);
-      feedsItemContainer.append(item);
+      itemsFragment.append(item);
     });
+    feedsItemContainer.append(itemsFragment);
   };
 
   const buildPostLink = (post) => {
