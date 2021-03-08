@@ -129,11 +129,20 @@ export default () => {
     // look at src/js/view.js
     // ************
 
+    yup.setLocale({
+      string: {
+        url: translate('errors.notValidUrl'),
+      },
+      mixed: {
+        notOneOf: translate('errors.feedExists'),
+      },
+    });
+
     const schema = yup
       .string()
-      .url(translate('errors.notValidUrl'))
+      .url()
       .notOneOf([])
-      .when('$currentFeedLinks', (currentFeedLinks, currentSchema) => (currentSchema.notOneOf(currentFeedLinks, translate('errors.feedExists'))));
+      .when('$currentFeedLinks', (currentFeedLinks, currentSchema) => (currentSchema.notOneOf(currentFeedLinks)));
 
     const validate = (value) => {
       try {
