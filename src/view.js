@@ -91,6 +91,8 @@ export default (elements, translate) => {
     }
     const postItemsContainer = postsBlock.querySelector('.list-group');
     postItemsContainer.innerHTML = '';
+
+    const itemsFragment = new DocumentFragment();
     posts.forEach((post) => {
       const item = document.createElement('li');
       item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
@@ -104,8 +106,9 @@ export default (elements, translate) => {
       const button = buildPostButton(post, translate);
 
       item.append(postLink, button);
-      postItemsContainer.append(item);
+      itemsFragment.append(item);
     });
+    postItemsContainer.append(itemsFragment);
   };
 
   const renderViewedPost = (id) => {
