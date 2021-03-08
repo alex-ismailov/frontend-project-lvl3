@@ -89,6 +89,7 @@ export default (elements, translate) => {
     button.setAttribute('data-id', post.id);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
+    button.setAttribute('data-is-button', true);
     button.textContent = translate('preview');
     return button;
   };
