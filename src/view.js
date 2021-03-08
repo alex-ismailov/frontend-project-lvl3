@@ -38,12 +38,19 @@ export default (elements, translate) => {
     return ul;
   };
 
-  const renderFeeds = (feeds) => {
-    if (!feedsBlock.hasChildNodes()) {
-      const title = buildTitle(translate('feeds'));
-      const itemsContainer = buildItemsContainer();
-      feedsBlock.append(title, itemsContainer);
+  const initContainer = (container, titleText) => {
+    if (container.hasChildNodes()) {
+      return;
     }
+    const fragment = new DocumentFragment();
+    const title = buildTitle(titleText);
+    const itemsContainer = buildItemsContainer();
+    fragment.append(title, itemsContainer);
+    container.append(fragment);
+  };
+
+  const renderFeeds = (feeds) => {
+    initContainer(feedsBlock, translate('feeds'));
     const feedsItemContainer = feedsBlock.querySelector('.list-group');
     feedsItemContainer.innerHTML = '';
 
