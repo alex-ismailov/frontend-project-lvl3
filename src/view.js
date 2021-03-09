@@ -7,7 +7,7 @@ export default (elements, translate) => {
     input, submitButton, feedback, feedsBlock, postsBlock, modal,
   } = elements;
 
-  const renderInputError = (isValid) => {
+  const renderInput = (isValid) => {
     if (!isValid) {
       input.classList.add('is-invalid');
       return;
@@ -135,39 +135,6 @@ export default (elements, translate) => {
     modalWindowLink.href = link;
   };
 
-  const handleProcessState = (processState, error) => {
-    switch (processState) {
-      case 'filling':
-        submitButton.disabled = false;
-        input.readOnly = false;
-        break;
-      case 'failed':
-        renderFeedback(error);
-        break;
-      case 'sending':
-        submitButton.disabled = true;
-        input.readOnly = true;
-        break;
-      case 'finished':
-        renderFeedback('success');
-        input.value = '';
-        break;
-      default:
-        throw new Error(`Unknown process state: ${processState}`);
-    }
-  };
-
-  const renderData = (value, previousValue, viewedPostsIds) => {
-    const { feeds, posts } = value;
-    const { feeds: previousFeeds } = previousValue;
-    if (feeds.length === previousFeeds.length) {
-      renderPosts(posts, viewedPostsIds);
-      return;
-    }
-    renderFeeds(feeds);
-    renderPosts(posts, viewedPostsIds);
-  };
-
   const handleUIState = (path, value, posts) => {
     switch (path) {
       case 'uiState.modal.currentPostId': {
@@ -184,15 +151,59 @@ export default (elements, translate) => {
     }
   };
 
+  const renderData = (value, previousValue, viewedPostsIds) => {
+    const { feeds, posts } = value;
+    const { feeds: previousFeeds } = previousValue;
+    if (feeds.length === previousFeeds.length) {
+      renderPosts(posts, viewedPostsIds);
+      return;
+    }
+    renderFeeds(feeds);
+    renderPosts(posts, viewedPostsIds);
+  };
+
+  const handleForm = (value) => {
+    const { valid, processState } = value;
+    renderInput(valid);
+    switch (processState) {
+      case 'filling':
+        submitButton.disabled = false;
+        input.readOnly = false;
+        break;
+      case 'processing':
+        submitButton.disabled = true;
+        input.readOnly = true;
+        break;
+      default:
+        throw new Error(`Unknown form process state: ${processState}`);
+    }
+  };
+
+  const handleLoading = (processState, error) => {
+    switch (processState) {
+      case 'loading':
+        break;
+      case 'success':
+        renderFeedback('success');
+        input.value = ''; // скорее это ответсвенность handleForm
+        break;
+      case 'failure':
+        renderFeedback(error);
+        break;
+      default:
+        throw new Error(`Unknown loading process state: ${processState}`);
+    }
+  };
+
   // *** watchers ***
   return (state) => {
     const watchedState = onChange(state, (path, value, previousValue) => {
       switch (path) {
-        case 'processState':
-          handleProcessState(value, watchedState.error);
+        case 'loadingState':
+          handleLoading(value, watchedState.error);
           break;
         case 'form':
-          renderInputError(value.valid);
+          handleForm(value);
           break;
         case 'data':
           renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
