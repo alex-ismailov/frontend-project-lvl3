@@ -71,7 +71,7 @@ const fetchNewFeed = (url, watchedState, translate) => {
     });
 };
 
-const watchForNewPosts = (watchedState, timerId) => {
+const watchFreshPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState.data;
   feeds.forEach((feed) => {
@@ -93,7 +93,7 @@ const watchForNewPosts = (watchedState, timerId) => {
       .catch((e) => console.log(`${e}; Impossible to get data from: ${feed.link}`));
   });
 
-  const newTimerId = setTimeout(() => watchForNewPosts(watchedState, newTimerId), DELAY);
+  const newTimerId = setTimeout(() => watchFreshPosts(watchedState, newTimerId), DELAY);
 };
 
 // *** MODEL ***
@@ -202,7 +202,7 @@ export default () => {
       watchedState.uiState.viewedPostsIds.add(id);
     });
 
-    // контроллер демон watchForNewPosts, запускается один раз на этапе инициализации приложения
-    const timerId = setTimeout(() => watchForNewPosts(watchedState, timerId), DELAY);
+    // контроллер демон watchFreshPosts, запускается один раз на этапе инициализации приложения
+    const timerId = setTimeout(() => watchFreshPosts(watchedState, timerId), DELAY);
   });
 };
