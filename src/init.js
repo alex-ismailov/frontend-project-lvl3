@@ -35,7 +35,7 @@ const buildAllOriginsUrl = (rssUrl) => {
   return url.toString();
 };
 
-const addNewRssFeed = (url, watchedState, translate) => {
+const fetchNewFeed = (url, watchedState, translate) => {
   watchedState.loadingState = loadingStateMap.loading;
   axios.get(buildAllOriginsUrl(url), { timeout: TIMEOUT })
     .then((response) => {
@@ -185,7 +185,7 @@ export default () => {
         watchedState.loadingState = loadingStateMap.failure;
         return;
       }
-      addNewRssFeed(value, watchedState, translate);
+      fetchNewFeed(value, watchedState, translate);
       watchedState.form = {
         ...watchedState.form,
         valid: true,
