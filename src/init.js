@@ -11,11 +11,17 @@ import normalize from './normalizer.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
-const processStateMap = {
+
+const formStateMap = {
   filling: 'filling',
-  sending: 'sending',
-  finished: 'finished',
-  failed: 'failed',
+  processing: 'processing',
+};
+
+const loadingStateMap = {
+  idle: 'idle',
+  loading: 'loading',
+  success: 'success',
+  failure: 'failure',
 };
 
 const buildAllOriginsUrl = (rssUrl) => {
@@ -30,6 +36,7 @@ const buildAllOriginsUrl = (rssUrl) => {
 };
 
 const addNewRssFeed = (url, watchedState, translate) => {
+  watchedState.loadingState = loadingStateMap.loading;
   axios.get(buildAllOriginsUrl(url), { timeout: TIMEOUT })
     .then((response) => {
       const rawData = response.data.contents;
@@ -41,14 +48,13 @@ const addNewRssFeed = (url, watchedState, translate) => {
         feeds: [feedData.feed, ...watchedState.data.feeds],
         posts: [...feedData.posts, ...watchedState.data.posts],
       };
+      watchedState.error = null;
+      watchedState.loadingState = loadingStateMap.success;
       watchedState.form = {
         ...watchedState.form, // <= ask Ira
         valid: true,
-        value: '',
+        processState: formStateMap.filling,
       };
-      watchedState.error = '';
-      watchedState.processState = processStateMap.finished;
-      watchedState.processState = processStateMap.filling;
     })
     .catch((e) => {
       // console.log(e); // for debugging
@@ -56,8 +62,12 @@ const addNewRssFeed = (url, watchedState, translate) => {
         ? translate('errors.notValidRssFormat')
         : translate('errors.networkError');
       watchedState.error = message;
-      watchedState.processState = processStateMap.failed;
-      watchedState.processState = processStateMap.filling;
+      watchedState.loadingState = loadingStateMap.failure;
+      watchedState.form = {
+        ...watchedState.form, // <= ask Ira
+        valid: false,
+        processState: formStateMap.filling,
+      };
     });
 };
 
@@ -94,11 +104,12 @@ export default () => {
     resources,
   }).then((translate) => {
     const state = {
-      processState: processStateMap.filling,
-      error: '',
+      loadingState: loadingStateMap.idle,
       form: {
         valid: true,
+        processState: formStateMap.filling,
       },
+      error: '',
       data: {
         feeds: [],
         posts: [],
@@ -167,15 +178,19 @@ export default () => {
       const error = validate(value);
       if (error) {
         watchedState.error = error;
-        watchedState.processState = processStateMap.failed;
         watchedState.form = {
           ...watchedState.form,
           valid: false,
         };
+        watchedState.loadingState = loadingStateMap.failure;
         return;
       }
       addNewRssFeed(value, watchedState, translate);
-      watchedState.processState = processStateMap.sending;
+      watchedState.form = {
+        ...watchedState.form,
+        valid: true,
+        processState: formStateMap.processing,
+      };
     });
 
     elements.postsBlock.addEventListener('click', (e) => {
