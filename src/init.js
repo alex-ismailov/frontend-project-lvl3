@@ -98,7 +98,6 @@ export default () => {
       error: '',
       form: {
         valid: true,
-        value: '',
       },
       data: {
         feeds: [],
