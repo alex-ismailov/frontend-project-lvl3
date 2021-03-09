@@ -185,7 +185,7 @@ export default (elements, translate) => {
         break;
       case 'success':
         renderFeedback('success');
-        input.value = ''; // скорее это ответсвенность handleForm
+        input.value = '';
         break;
       case 'failure':
         renderFeedback(error);
