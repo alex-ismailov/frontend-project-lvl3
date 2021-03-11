@@ -133,7 +133,7 @@ export default () => {
       modal: document.querySelector('#modal'),
     };
 
-    const watchedState = buildWatchedState(elements, translate)(state);
+    const watchedState = buildWatchedState(elements, translate, state);
 
     // *** VIEW ***
     // look at src/js/view.js
