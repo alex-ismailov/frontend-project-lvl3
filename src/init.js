@@ -25,9 +25,9 @@ const loadingStateMap = {
 };
 
 const buildAllOriginsUrl = (rssUrl) => {
-  const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
-  const corsProxyApi = '/get';
-  const url = new URL(`${corsProxy}${corsProxyApi}`);
+  const baseURL = 'https://hexlet-allorigins.herokuapp.com';
+  const relativeURL = '/get';
+  const url = new URL(relativeURL, baseURL);
   const params = url.searchParams;
   params.set('disableCache', true);
   params.set('url', rssUrl);
