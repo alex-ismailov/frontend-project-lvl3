@@ -50,8 +50,6 @@ const fetchNewFeed = (url, watchedState, translate) => {
       };
       watchedState.error = null;
       watchedState.loadingState = loadingStateMap.success;
-    })
-    .then(() => {
       watchedState.form = {
         ...watchedState.form, // <= ask Ira
         valid: true,
@@ -65,8 +63,6 @@ const fetchNewFeed = (url, watchedState, translate) => {
         : translate('errors.networkError');
       watchedState.error = message;
       watchedState.loadingState = loadingStateMap.failure;
-    })
-    .then(() => {
       watchedState.form = {
         ...watchedState.form, // <= ask Ira
         valid: false,
