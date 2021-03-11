@@ -2,7 +2,7 @@
 
 import onChange from 'on-change';
 
-export default (elements, translate) => {
+export default (elements, translate, state) => {
   const {
     input, submitButton, feedback, feedsBlock, postsBlock, modal,
   } = elements;
@@ -196,27 +196,25 @@ export default (elements, translate) => {
   };
 
   // *** watchers ***
-  return (state) => {
-    const watchedState = onChange(state, (path, value, previousValue) => {
-      switch (path) {
-        case 'loadingState':
-          handleLoading(value, watchedState.error);
-          break;
-        case 'form':
-          handleForm(value);
-          break;
-        case 'data':
-          renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
-          break;
-        case 'uiState.modal.currentPostId':
-        case 'uiState.currentViewedPostId':
-          handleUIState(path, value, watchedState.data.posts);
-          break;
-        default:
-          break;
-      }
-    });
+  const watchedState = onChange(state, (path, value, previousValue) => {
+    switch (path) {
+      case 'loadingState':
+        handleLoading(value, watchedState.error);
+        break;
+      case 'form':
+        handleForm(value);
+        break;
+      case 'data':
+        renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
+        break;
+      case 'uiState.modal.currentPostId':
+      case 'uiState.currentViewedPostId':
+        handleUIState(path, value, watchedState.data.posts);
+        break;
+      default:
+        break;
+    }
+  });
 
-    return watchedState;
-  };
+  return watchedState;
 };
