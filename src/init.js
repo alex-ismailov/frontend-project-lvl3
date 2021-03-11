@@ -74,8 +74,8 @@ const fetchNewFeed = (url, watchedState, translate) => {
 const watchFreshPosts = (watchedState, timerId) => {
   clearTimeout(timerId);
   const { feeds } = watchedState.data;
-  feeds.forEach((feed) => {
-    axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
+  const promises = feeds
+    .map((feed) => axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
       .then((response) => {
         const { contents } = response.data;
         const parsedFeed = parse(contents, feed.link);
@@ -90,10 +90,12 @@ const watchFreshPosts = (watchedState, timerId) => {
           };
         }
       })
-      .catch((e) => console.log(`${e}; Impossible to get data from: ${feed.link}`));
-  });
+      .catch((e) => console.log(`${e}; Impossible to get data from: ${feed.link}`)));
 
-  const newTimerId = setTimeout(() => watchFreshPosts(watchedState, newTimerId), DELAY);
+  Promise.all(promises)
+    .then(() => {
+      const newTimerId = setTimeout(() => watchFreshPosts(watchedState, newTimerId), DELAY);
+    });
 };
 
 // *** MODEL ***
