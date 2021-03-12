@@ -187,12 +187,12 @@ export default () => {
         watchedState.loadingState = loadingStateMap.failure;
         return;
       }
-      fetchNewFeed(value, watchedState, translate);
       watchedState.form = {
         ...watchedState.form,
         valid: true,
         processState: formStateMap.processing,
       };
+      fetchNewFeed(value, watchedState, translate);
     });
 
     elements.postsBlock.addEventListener('click', (e) => {
