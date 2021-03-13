@@ -26,29 +26,6 @@ export default (elements, translate, state) => {
     feedback.classList.add('text-success');
   };
 
-  const buildTitle = (titleContent) => {
-    const title = document.createElement('feedTitle');
-    title.textContent = titleContent;
-    return title;
-  };
-
-  const buildItemsContainer = () => {
-    const ul = document.createElement('ul');
-    ul.classList.add('list-group', 'mb-5');
-    return ul;
-  };
-
-  const initContainer = (container, titleText) => {
-    if (container.hasChildNodes()) {
-      return;
-    }
-    const fragment = new DocumentFragment();
-    const title = buildTitle(titleText);
-    const itemsContainer = buildItemsContainer();
-    fragment.append(title, itemsContainer);
-    container.append(fragment);
-  };
-
   const renderFeeds = (feeds) => {
     feedsBlock.innerHTML = '';
 
@@ -100,11 +77,14 @@ export default (elements, translate, state) => {
   };
 
   const renderPosts = (posts, viewedPostsIds) => {
-    initContainer(postsBlock, translate('posts'));
-    const postItemsContainer = postsBlock.querySelector('.list-group');
-    postItemsContainer.innerHTML = '';
+    postsBlock.innerHTML = '';
 
-    const itemsFragment = new DocumentFragment();
+    const postsTitle = document.createElement('h2');
+    postsTitle.textContent = translate('posts');
+
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'mb-5');
+
     posts.forEach((post) => {
       const item = document.createElement('li');
       item.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
@@ -118,9 +98,11 @@ export default (elements, translate, state) => {
       const button = buildPostButton(post, translate);
 
       item.append(postLink, button);
-      itemsFragment.append(item);
+      ul.append(item);
     });
-    postItemsContainer.append(itemsFragment);
+    const fragment = new DocumentFragment();
+    fragment.append(postsTitle, ul);
+    postsBlock.append(fragment);
   };
 
   const addDataToModal = (postData) => {
