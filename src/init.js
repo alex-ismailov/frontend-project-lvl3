@@ -43,7 +43,6 @@ const fetchNewFeed = (url, watchedState, translate) => {
       const feedData = normalize(parsedFeed);
 
       watchedState.data = {
-        ...watchedState.data, // <= ask Ira
         feeds: [feedData.feed, ...watchedState.data.feeds],
         posts: [...feedData.posts, ...watchedState.data.posts],
       };
