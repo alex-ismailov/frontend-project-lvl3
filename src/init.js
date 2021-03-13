@@ -12,11 +12,6 @@ import normalize from './normalizer.js';
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
 
-const formStateMap = {
-  filling: 'filling',
-  processing: 'processing',
-};
-
 const loadingStateMap = {
   idle: 'idle',
   loading: 'loading',
@@ -50,11 +45,7 @@ const fetchNewFeed = (url, watchedState, translate) => {
       };
       watchedState.error = null;
       watchedState.loadingState = loadingStateMap.success;
-      watchedState.form = {
-        ...watchedState.form, // <= ask Ira
-        valid: true,
-        processState: formStateMap.filling,
-      };
+      watchedState.form.valid = true;
     })
     .catch((e) => {
       // console.log(e); // for debugging
@@ -63,11 +54,7 @@ const fetchNewFeed = (url, watchedState, translate) => {
         : translate('errors.networkError');
       watchedState.error = message;
       watchedState.loadingState = loadingStateMap.failure;
-      watchedState.form = {
-        ...watchedState.form, // <= ask Ira
-        valid: false,
-        processState: formStateMap.filling,
-      };
+      watchedState.form.valid = false;
     });
 };
 
@@ -117,10 +104,11 @@ export default () => {
     const schema = yup.string().url();
 
     const state = {
+      // заблокированность формы ориентируется на состояние загрузки данных
       loadingState: loadingStateMap.idle,
       form: {
         valid: true,
-        processState: formStateMap.filling,
+        // processState: formStateMap.filling, // это лишнее
       },
       error: '',
       data: {
@@ -170,18 +158,11 @@ export default () => {
       const error = validate(value, currentFeedsLinks);
       if (error) {
         watchedState.error = error;
-        watchedState.form = {
-          ...watchedState.form,
-          valid: false,
-        };
+        watchedState.form.valid = false;
         watchedState.loadingState = loadingStateMap.failure;
         return;
       }
-      watchedState.form = {
-        ...watchedState.form,
-        valid: true,
-        processState: formStateMap.processing,
-      };
+      watchedState.form.valid = true;
       fetchNewFeed(value, watchedState, translate);
     });
 
