@@ -45,7 +45,6 @@ const fetchNewFeed = (url, watchedState, translate) => {
       };
       watchedState.error = null;
       watchedState.loadingState = loadingStateMap.success;
-      watchedState.form.valid = true;
     })
     .catch((e) => {
       // console.log(e); // for debugging
@@ -54,7 +53,6 @@ const fetchNewFeed = (url, watchedState, translate) => {
         : translate('errors.networkError');
       watchedState.error = message;
       watchedState.loadingState = loadingStateMap.failure;
-      watchedState.form.valid = false;
     });
 };
 
