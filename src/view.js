@@ -27,7 +27,7 @@ export default (elements, translate, state) => {
   };
 
   const buildTitle = (titleContent) => {
-    const title = document.createElement('h2');
+    const title = document.createElement('feedTitle');
     title.textContent = titleContent;
     return title;
   };
@@ -50,14 +50,17 @@ export default (elements, translate, state) => {
   };
 
   const renderFeeds = (feeds) => {
-    initContainer(feedsBlock, translate('feeds'));
-    const feedsItemContainer = feedsBlock.querySelector('.list-group');
-    feedsItemContainer.innerHTML = '';
+    feedsBlock.innerHTML = '';
 
-    const itemsFragment = new DocumentFragment();
+    const feedTitle = document.createElement('h2');
+    feedTitle.textContent = translate('feeds');
+
+    const ul = document.createElement('ul');
+    ul.classList.add('list-group', 'mb-5');
+
     feeds.forEach((feed) => {
-      const title = document.createElement('h3');
-      title.textContent = feed.title;
+      const postTitle = document.createElement('h3');
+      postTitle.textContent = feed.title;
 
       const description = document.createElement('p');
       description.textContent = feed.description;
@@ -65,10 +68,12 @@ export default (elements, translate, state) => {
       const item = document.createElement('li');
       item.classList.add('list-group-item', 'border');
 
-      item.append(title, description);
-      itemsFragment.append(item);
+      item.append(postTitle, description);
+      ul.append(item);
     });
-    feedsItemContainer.append(itemsFragment);
+    const fragment = new DocumentFragment();
+    fragment.append(feedTitle, ul);
+    feedsBlock.append(fragment);
   };
 
   const buildPostLink = (post) => {
