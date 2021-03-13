@@ -120,7 +120,6 @@ export default () => {
         modal: {
           currentPostId: null,
         },
-        currentViewedPostId: null,
         viewedPostsIds: new Set(),
       },
     };
@@ -200,7 +199,6 @@ export default () => {
       if (isButton) {
         watchedState.uiState.modal.currentPostId = id;
       }
-      watchedState.uiState.currentViewedPostId = id;
       watchedState.uiState.viewedPostsIds.add(id);
     });
 
