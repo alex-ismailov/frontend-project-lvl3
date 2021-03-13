@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 import _ from 'lodash';
 import resources from './locales/index.js';
+import yupDictionary from './yup.js';
 import buildWatchedState from './view.js';
 import parse from './parser.js';
 import normalize from './normalizer.js';
@@ -97,15 +98,7 @@ export default () => {
     fallbackLng: 'ru',
     resources,
   }).then((translate) => {
-    yup.setLocale({
-      string: {
-        url: translate('errors.notValidUrl'),
-      },
-      mixed: {
-        notOneOf: translate('errors.feedExists'),
-      },
-    });
-
+    yup.setLocale(yupDictionary);
     const schema = yup.string().url();
 
     const state = {
@@ -152,7 +145,8 @@ export default () => {
         expandedScheme.validateSync(value);
         return null;
       } catch (e) {
-        return e.message;
+        const { key } = e.message;
+        return translate(key);
       }
     };
 
