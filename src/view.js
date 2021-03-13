@@ -118,12 +118,6 @@ export default (elements, translate, state) => {
     postItemsContainer.append(itemsFragment);
   };
 
-  // const renderViewedPost = (id) => {
-  //   const post = document.querySelector(`[data-id="${id}"]`);
-  //   post.classList.remove('fw-bold', 'font-weight-bold');
-  //   post.classList.add('fw-normal', 'font-weight-normal');
-  // };
-
   const addDataToModal = (postData) => {
     const modalWindowTitle = modal.querySelector('.modal-title');
     const modalWindowBody = modal.querySelector('.modal-body');
@@ -133,22 +127,6 @@ export default (elements, translate, state) => {
     modalWindowTitle.textContent = title;
     modalWindowBody.textContent = description;
     modalWindowLink.href = link;
-  };
-
-  const handleUIState = (path, value, posts) => {
-    switch (path) {
-      case 'uiState.modal.currentPostId': {
-        const post = posts.find(({ id }) => id === value);
-        addDataToModal(post);
-        break;
-      }
-      case 'uiState.currentViewedPostId':
-        renderViewedPost(value);
-        break;
-
-      default:
-        throw new Error(`Unknown uiState path: ${path}`);
-    }
   };
 
   const renderData = (value, previousValue, viewedPostsIds) => {
@@ -195,20 +173,6 @@ export default (elements, translate, state) => {
     }
   };
 
-  const renderViewedPost = (postId) => {
-    console.log(postId);
-    const post = document.querySelector(`a[data-id="${postId}"]`);
-    console.log(post);
-    post.classList.remove('fw-bold', 'font-weight-bold');
-    post.classList.add('fw-normal', 'font-weight-normal');
-  };
-
-  // const renderViewedPost = (id) => {
-  //   const post = document.querySelector(`[data-id="${id}"]`);
-  //   post.classList.remove('fw-bold', 'font-weight-bold');
-  //   post.classList.add('fw-normal', 'font-weight-normal');
-  // };
-
   // *** watchers ***
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
@@ -221,25 +185,8 @@ export default (elements, translate, state) => {
       case 'data':
         renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
         break;
-      // case 'uiState.modal.currentPostId':
-      case 'uiState.currentViewedPostId':
-      //   handleUIState(path, value, watchedState.data.posts);
-      //   break;
       case 'uiState.viewedPostsIds':
-        // TODO renderPosts
-        /* получить разницу между value и previousValue
-        чтобы узнать id текущего просмотренного поста */
-        // const v1 = Array.from(value.values());
-        // const v2 = Array.from(previousValue.values());
-        // const arr = [v1, v2];
-        // const v3 = '#$%';
-
-  
-        const currentViewedPostsIds = Array.from(value);
-        const previousViewedPostsIds = Array.from(previousValue ?? []);
-        const [viewedPostId] = _.difference(currentViewedPostsIds, previousViewedPostsIds);
-        /* отрендерить отдельно просмотренный пост */
-        renderViewedPost(viewedPostId);
+        renderPosts(watchedState.data.posts, value);
         break;
       case 'uiState.modal.currentPostId': {
         const post = watchedState.data.posts.find(({ id }) => id === value);
