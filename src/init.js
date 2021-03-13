@@ -31,7 +31,10 @@ const buildAllOriginsUrl = (rssUrl) => {
 };
 
 const fetchNewFeed = (url, watchedState, translate) => {
-  watchedState.loadingState = loadingStateMap.loading;
+  watchedState.loading = {
+    ...watchedState.loading,
+    processState: loadingStateMap.loading,
+  };
   axios.get(buildAllOriginsUrl(url), { timeout: TIMEOUT })
     .then((response) => {
       const rawData = response.data.contents;
@@ -43,16 +46,20 @@ const fetchNewFeed = (url, watchedState, translate) => {
         feeds: [feedData.feed, ...watchedState.data.feeds],
         posts: [...feedData.posts, ...watchedState.data.posts],
       };
-      watchedState.error = null;
-      watchedState.loadingState = loadingStateMap.success;
+      watchedState.loading = {
+        processState: loadingStateMap.success,
+        error: null,
+      };
     })
     .catch((e) => {
       // console.log(e); // for debugging
-      const message = e.message === 'notValidRssFormat'
+      const error = e.message === 'notValidRssFormat'
         ? translate('errors.notValidRssFormat')
         : translate('errors.networkError');
-      watchedState.error = message;
-      watchedState.loadingState = loadingStateMap.failure;
+      watchedState.loading = {
+        processState: loadingStateMap.failure,
+        error,
+      };
     });
 };
 
@@ -102,11 +109,14 @@ export default () => {
     const schema = yup.string().url();
 
     const state = {
-      loadingState: loadingStateMap.idle,
+      loading: {
+        processState: loadingStateMap.idle,
+        error: null,
+      },
       form: {
         valid: true,
+        error: null,
       },
-      error: '',
       data: {
         feeds: [],
         posts: [],
@@ -153,12 +163,16 @@ export default () => {
       const currentFeedsLinks = watchedState.data.feeds.map(({ link }) => link);
       const error = validate(value, currentFeedsLinks);
       if (error) {
-        watchedState.error = error;
-        watchedState.form.valid = false;
-        watchedState.loadingState = loadingStateMap.failure;
+        watchedState.form = {
+          valid: false,
+          error,
+        };
         return;
       }
-      watchedState.form.valid = true;
+      watchedState.form = {
+        valid: true,
+        error: null,
+      };
       fetchNewFeed(value, watchedState, translate);
     });
 
