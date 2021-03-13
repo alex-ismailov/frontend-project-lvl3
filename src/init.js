@@ -104,11 +104,9 @@ export default () => {
     const schema = yup.string().url();
 
     const state = {
-      // заблокированность формы ориентируется на состояние загрузки данных
       loadingState: loadingStateMap.idle,
       form: {
         valid: true,
-        // processState: formStateMap.filling, // это лишнее
       },
       error: '',
       data: {
