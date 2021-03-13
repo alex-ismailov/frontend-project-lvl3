@@ -105,6 +105,17 @@ export default () => {
     fallbackLng: 'ru',
     resources,
   }).then((translate) => {
+    yup.setLocale({
+      string: {
+        url: translate('errors.notValidUrl'),
+      },
+      mixed: {
+        notOneOf: translate('errors.feedExists'),
+      },
+    });
+
+    const schema = yup.string().url();
+
     const state = {
       loadingState: loadingStateMap.idle,
       form: {
@@ -140,32 +151,11 @@ export default () => {
     // look at src/js/view.js
     // ************
 
-    yup.setLocale({
-      string: {
-        url: translate('errors.notValidUrl'),
-      },
-      mixed: {
-        notOneOf: translate('errors.feedExists'),
-      },
-    });
-
-    const schema = yup
-      .string()
-      .url()
-      .notOneOf([])
-      .when('$currentFeedLinks', (currentFeedLinks, currentSchema) => (currentSchema.notOneOf(currentFeedLinks)));
-
-    const validate = (value) => {
+    const validate = (value, currentFeeds) => {
+      const expandedScheme = schema
+        .notOneOf(currentFeeds);
       try {
-        schema.validateSync(
-          value,
-          {
-            abortEarly: false,
-            context: {
-              currentFeedLinks: watchedState.data.feeds.map(({ link }) => link),
-            },
-          },
-        );
+        expandedScheme.validateSync(value);
         return null;
       } catch (e) {
         return e.message;
@@ -176,7 +166,8 @@ export default () => {
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const { value } = e.target.elements.url;
-      const error = validate(value);
+      const currentFeedsLinks = watchedState.data.feeds.map(({ link }) => link);
+      const error = validate(value, currentFeedsLinks);
       if (error) {
         watchedState.error = error;
         watchedState.form = {
