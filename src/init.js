@@ -177,10 +177,12 @@ export default () => {
     });
 
     elements.postsBlock.addEventListener('click', (e) => {
-      const { id, isButton } = e.target.dataset;
-      if (isButton) {
-        watchedState.uiState.modal.currentPostId = id;
+      const { target, target: { dataset: { id } } } = e;
+      if (!target.hasAttribute('data-is-button')) {
+        watchedState.uiState.viewedPostsIds.add(id);
+        return;
       }
+      watchedState.uiState.modal.currentPostId = id;
       watchedState.uiState.viewedPostsIds.add(id);
     });
 
