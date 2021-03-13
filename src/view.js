@@ -127,7 +127,8 @@ export default (elements, translate, state) => {
     renderPosts(posts, viewedPostsIds);
   };
 
-  const handleLoading = (processState, error) => {
+  const handleLoading = (loadingState) => {
+    const { processState, error } = loadingState;
     switch (processState) {
       case 'loading':
         submitButton.disabled = true;
@@ -149,15 +150,22 @@ export default (elements, translate, state) => {
     }
   };
 
+  const handleForm = (formState) => {
+    const { valid, error } = formState;
+    if (error) {
+      renderFeedback(error);
+    }
+    renderInput(valid);
+  };
+
   // *** watchers ***
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
-      case 'loadingState':
-        handleLoading(value, watchedState.error);
+      case 'form':
+        handleForm(value);
         break;
-      case 'form.valid':
-        // handleForm(value);
-        renderInput(value);
+      case 'loading':
+        handleLoading(value);
         break;
       case 'data':
         renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
@@ -170,8 +178,6 @@ export default (elements, translate, state) => {
         addDataToModal(post);
         break;
       }
-      case 'error':
-        break;
       default:
         throw new Error(`Unknown state path: ${path}`);
     }
