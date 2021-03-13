@@ -127,32 +127,21 @@ export default (elements, translate, state) => {
     renderPosts(posts, viewedPostsIds);
   };
 
-  const handleForm = (value) => {
-    const { valid, processState } = value;
-    renderInput(valid);
-    switch (processState) {
-      case 'filling':
-        submitButton.disabled = false;
-        input.readOnly = false;
-        break;
-      case 'processing':
-        submitButton.disabled = true;
-        input.readOnly = true;
-        break;
-      default:
-        throw new Error(`Unknown form process state: ${processState}`);
-    }
-  };
-
   const handleLoading = (processState, error) => {
     switch (processState) {
       case 'loading':
+        submitButton.disabled = true;
+        input.readOnly = true;
         break;
       case 'success':
-        renderFeedback('success');
+        submitButton.disabled = false;
+        input.readOnly = false;
         input.value = '';
+        renderFeedback('success');
         break;
       case 'failure':
+        submitButton.disabled = false;
+        input.readOnly = false;
         renderFeedback(error);
         break;
       default:
@@ -166,8 +155,9 @@ export default (elements, translate, state) => {
       case 'loadingState':
         handleLoading(value, watchedState.error);
         break;
-      case 'form':
-        handleForm(value);
+      case 'form.valid':
+        // handleForm(value);
+        renderInput(value);
         break;
       case 'data':
         renderData(value, previousValue, watchedState.uiState.viewedPostsIds);
