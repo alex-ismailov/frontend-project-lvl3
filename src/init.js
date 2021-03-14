@@ -31,16 +31,16 @@ const buildAllOriginsUrl = (rssUrl) => {
   return url.toString();
 };
 
-const fetchNewFeed = (url, watchedState, translate) => {
+const fetchNewFeed = (feedUrl, watchedState, translate) => {
   watchedState.loading = {
     ...watchedState.loading,
     processState: loadingStateMap.loading,
   };
-  axios.get(buildAllOriginsUrl(url), { timeout: TIMEOUT })
+  axios.get(buildAllOriginsUrl(feedUrl), { timeout: TIMEOUT })
     .then((response) => {
       const rawData = response.data.contents;
-      const parsedFeed = parse(rawData, url);
-      const feedData = normalize(parsedFeed);
+      const parsedFeed = parse(rawData);
+      const feedData = normalize(parsedFeed, feedUrl);
 
       watchedState.data = {
         feeds: [feedData.feed, ...watchedState.data.feeds],
@@ -70,8 +70,8 @@ const watchFreshPosts = (watchedState, timerId) => {
     .map((feed) => axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
       .then((response) => {
         const { contents } = response.data;
-        const parsedFeed = parse(contents, feed.link);
-        const freshData = normalize(parsedFeed, feed.id);
+        const parsedFeed = parse(contents);
+        const freshData = normalize(parsedFeed, feed.link, feed.id);
         const currentFeedPosts = watchedState.data.posts.filter(({ feedId }) => feedId === feed.id);
 
         const newPosts = _.differenceBy(freshData.posts, currentFeedPosts, 'title');
