@@ -1,4 +1,4 @@
-export default (data, feedUrl) => {
+export default (data) => {
   if (!data.startsWith('<?xml')) {
     throw new Error('notValidRssFormat');
   }
@@ -19,7 +19,6 @@ export default (data, feedUrl) => {
   const channel = {
     title: feedXmlDocument.querySelector('title').textContent,
     description: feedXmlDocument.querySelector('description').textContent,
-    link: feedUrl,
     items,
   };
 
