@@ -1,11 +1,11 @@
 import _ from 'lodash';
 
-export default (data, id = null) => {
+export default (data, url, id = null) => {
   const feedId = id ?? _.uniqueId();
   const feed = {
     id: feedId,
     title: data.title,
-    link: data.link,
+    link: url,
     description: data.description,
   };
   const posts = data.items.map((item) => {
