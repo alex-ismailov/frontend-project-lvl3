@@ -153,7 +153,7 @@ export default (elements, translate, state) => {
   const handleForm = (formState) => {
     const { valid, error } = formState;
     if (error) {
-      renderFeedback(error);
+      renderFeedback(translate(error));
     }
     renderInput(valid);
   };
