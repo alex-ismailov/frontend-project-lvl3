@@ -145,7 +145,7 @@ export default () => {
         return null;
       } catch (e) {
         const { key } = e.message;
-        return translate(key);
+        return key;
       }
     };
 
