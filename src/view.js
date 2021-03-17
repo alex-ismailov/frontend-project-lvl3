@@ -8,22 +8,11 @@ export default (elements, translate, state) => {
   } = elements;
 
   const renderInput = (isValid) => {
-    if (!isValid) {
-      input.classList.add('is-invalid');
+    if (isValid) {
+      input.classList.remove('is-invalid');
       return;
     }
-    input.classList.remove('is-invalid');
-  };
-
-  const renderFeedback = (message) => {
-    if (message !== 'success') {
-      feedback.textContent = message;
-      feedback.classList.add('text-danger');
-      return;
-    }
-    feedback.classList.remove('text-danger');
-    feedback.textContent = translate(message);
-    feedback.classList.add('text-success');
+    input.classList.add('is-invalid');
   };
 
   const renderFeeds = (feeds) => {
@@ -138,31 +127,26 @@ export default (elements, translate, state) => {
         submitButton.disabled = false;
         input.readOnly = false;
         input.value = '';
-        renderFeedback(translate('success'));
+        feedback.classList.remove('text-danger');
+        feedback.textContent = translate('success');
         break;
       case 'failure':
         submitButton.disabled = false;
         input.readOnly = false;
-        renderFeedback(translate(error));
+        feedback.classList.add('text-danger');
+        feedback.textContent = translate(error);
         break;
       default:
         throw new Error(`Unknown loading process state: ${processState}`);
     }
   };
 
-  const handleForm = (formState) => {
-    const { valid, error } = formState;
-    if (error) {
-      renderFeedback(translate(error));
-    }
-    renderInput(valid);
-  };
-
   // *** watchers ***
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'form':
-        handleForm(value);
+        renderInput(watchedState.form.valid);
+        feedback.textContent = translate(watchedState.form.error);
         break;
       case 'loading':
         handleLoading(value);
