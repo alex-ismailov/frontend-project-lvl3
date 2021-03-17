@@ -79,7 +79,7 @@ const fetchNewFeed = (feedUrl, watchedState) => {
       // console.log(e); // for debugging
       const error = e.message === 'notValidRssFormat'
         ? 'errors.notValidRssFormat'
-        : 'errors.networkE+rror';
+        : 'errors.networkError';
       watchedState.loading = {
         processState: loadingStateMap.failure,
         error,
