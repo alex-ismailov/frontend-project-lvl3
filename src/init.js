@@ -31,7 +31,7 @@ const buildAllOriginsUrl = (rssUrl) => {
   return url.toString();
 };
 
-const fetchNewFeed = (feedUrl, watchedState, translate) => {
+const fetchNewFeed = (feedUrl, watchedState) => {
   watchedState.loading = {
     ...watchedState.loading,
     processState: loadingStateMap.loading,
@@ -54,8 +54,8 @@ const fetchNewFeed = (feedUrl, watchedState, translate) => {
     .catch((e) => {
       // console.log(e); // for debugging
       const error = e.message === 'notValidRssFormat'
-        ? translate('errors.notValidRssFormat')
-        : translate('errors.networkError');
+        ? 'errors.notValidRssFormat'
+        : 'errors.networkE+rror';
       watchedState.loading = {
         processState: loadingStateMap.failure,
         error,
@@ -166,7 +166,7 @@ export default () => {
         valid: true,
         error: null,
       };
-      fetchNewFeed(value, watchedState, translate);
+      fetchNewFeed(value, watchedState);
     });
 
     elements.postsBlock.addEventListener('click', (e) => {
