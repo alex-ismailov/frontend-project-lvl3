@@ -195,12 +195,11 @@ export default () => {
 
     elements.postsBlock.addEventListener('click', (e) => {
       const { target, target: { dataset: { id } } } = e;
-      if (!target.hasAttribute('data-is-button')) {
-        watchedState.uiState.viewedPostsIds.add(id);
+      if (!target.hasAttribute('data-id')) {
         return;
       }
-      watchedState.uiState.modal.currentPostId = id;
       watchedState.uiState.viewedPostsIds.add(id);
+      watchedState.uiState.modal.currentPostId = id;
     });
 
     // контроллер демон watchFreshPosts, запускается один раз на этапе инициализации приложения
