@@ -138,12 +138,12 @@ export default (elements, translate, state) => {
         submitButton.disabled = false;
         input.readOnly = false;
         input.value = '';
-        renderFeedback('success');
+        renderFeedback(translate('success'));
         break;
       case 'failure':
         submitButton.disabled = false;
         input.readOnly = false;
-        renderFeedback(error);
+        renderFeedback(translate(error));
         break;
       default:
         throw new Error(`Unknown loading process state: ${processState}`);
