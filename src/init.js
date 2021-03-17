@@ -109,7 +109,7 @@ const watchFreshPosts = (watchedState, timerId) => {
       .catch((e) => console.log(`${e}; Impossible to get data from: ${feed.link}`)));
 
   Promise.all(promises)
-    .then(() => {
+    .finally(() => {
       const newTimerId = setTimeout(() => watchFreshPosts(watchedState, newTimerId), DELAY);
     });
 };
