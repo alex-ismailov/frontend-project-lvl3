@@ -118,7 +118,7 @@ const watchFreshPosts = (watchedState, timerId) => {
 export default () => {
   const i18nextInstance = i18next.createInstance();
   return i18nextInstance.init({
-    fallbackLng: 'ru',
+    lng: 'ru-RU',
     resources,
   }).then((translate) => {
     yup.setLocale(yupDictionary);
