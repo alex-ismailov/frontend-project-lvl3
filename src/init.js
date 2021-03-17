@@ -8,7 +8,6 @@ import yupDictionary from './locales/yup.js';
 import resources from './locales/index.js';
 import buildWatchedState from './view.js';
 import parse from './parser.js';
-import normalize from './normalizer.js';
 
 const TIMEOUT = 5000; // ms
 const DELAY = 5000; // ms
@@ -18,6 +17,31 @@ const loadingStateMap = {
   loading: 'loading',
   success: 'success',
   failure: 'failure',
+};
+
+const normalize = (data, url, id = null) => {
+  const feedId = id ?? _.uniqueId();
+  const feed = {
+    id: feedId,
+    title: data.title,
+    link: url,
+    description: data.description,
+  };
+  const posts = data.items.map((item) => {
+    const { title, link, description } = item;
+    return {
+      id: _.uniqueId(),
+      feedId,
+      title,
+      link,
+      description,
+    };
+  });
+
+  return {
+    feed,
+    posts,
+  };
 };
 
 const buildAllOriginsUrl = (rssUrl) => {
