@@ -127,11 +127,13 @@ export default (elements, translate, state) => {
         input.readOnly = false;
         input.value = '';
         feedback.classList.remove('text-danger');
+        feedback.classList.add('text-success');
         feedback.textContent = translate('success');
         break;
       case 'failure':
         submitButton.disabled = false;
         input.readOnly = false;
+        feedback.classList.remove('text-success');
         feedback.classList.add('text-danger');
         feedback.textContent = translate(error);
         break;
