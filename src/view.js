@@ -140,12 +140,20 @@ export default (elements, translate, state) => {
     }
   };
 
+  const handleForm = (formState) => {
+    const { valid, error } = formState;
+    if (error) {
+      feedback.textContent = translate(error);
+      feedback.classList.add('text-danger');
+    }
+    renderInput(valid);
+  };
+
   // *** watchers ***
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'form':
-        renderInput(watchedState.form.valid);
-        feedback.textContent = translate(watchedState.form.error);
+        handleForm(watchedState.form);
         break;
       case 'loading':
         handleLoading(value);
