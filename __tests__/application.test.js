@@ -27,6 +27,7 @@ const readFixture = (filename) => {
 
 const rss1 = readFixture('rss1.xml');
 const rssUrl = 'https://ru.hexlet.io/lessons.rss';
+const rssUrlUnvalid = 'tps://ru.hexlet';
 const corsProxy = 'https://hexlet-allorigins.herokuapp.com';
 const corsProxyApi = '/get';
 
@@ -55,6 +56,7 @@ beforeEach(() => {
 
   elements.input = screen.getByRole('textbox', { name: 'url' });
   elements.submit = screen.getByRole('button', { name: 'add' });
+  elements.feedback = screen.getByTestId('feedback');
 });
 
 test('adding', async () => {
@@ -212,4 +214,55 @@ test('modal', async () => {
   userEvent.click(previewBtns[0]);
   expect(await screen.findByText(/Цель: Научиться извлекать из дерева необходимые данные/i)).toBeVisible();
   expect(screen.getByRole('link', { name: /Агрегация \/ Python: Деревья/i })).not.toHaveClass('font-weight-bold');
+});
+
+describe('Feedback messages colors', () => {
+  test('unvalid form', async () => {
+    userEvent.type(elements.input, rssUrlUnvalid);
+    userEvent.click(elements.submit);
+    expect(elements.feedback).toHaveClass('text-danger');
+    expect(elements.feedback).not.toHaveClass('text-success');
+  });
+
+  test('success loading', async () => {
+    nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+      .get(corsProxyApi)
+      .query({ url: rssUrl, disableCache: 'true' })
+      .reply(200, { contents: rss1 });
+
+    userEvent.type(elements.input, rssUrl);
+    userEvent.click(elements.submit);
+    // expect(await screen.findByText(/RSS успешно загружен/i)).not.toHaveClass('text-danger');
+    // expect(elements.feedback).toHaveClass('text-success');
+    await waitFor(() => {
+      expect(elements.feedback).not.toHaveClass('text-danger');
+      expect(elements.feedback).toHaveClass('text-success');
+    });
+  });
+
+  test('failed loading', async () => {
+    nock(corsProxy)
+      .defaultReplyHeaders({
+        'access-control-allow-origin': '*',
+        'access-control-allow-credentials': 'true',
+      })
+      .get(corsProxyApi)
+      .query({ url: htmlUrl, disableCache: 'true' })
+      .reply(200, { contents: html });
+
+    userEvent.type(elements.input, htmlUrl);
+    userEvent.click(elements.submit);
+
+    // expect(await screen.findByText(/Ресурс не содержит валидный RSS/i))
+    // .toHaveClass('text-danger');
+    // expect(elements.feedback).not.toHaveClass('text-success');
+    await waitFor(() => {
+      expect(elements.feedback).toHaveClass('text-danger');
+      expect(elements.feedback).not.toHaveClass('text-success');
+    });
+  });
 });
