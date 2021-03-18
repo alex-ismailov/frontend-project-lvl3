@@ -126,6 +126,7 @@ export default (elements, translate, state) => {
         submitButton.disabled = false;
         input.readOnly = false;
         input.value = '';
+        input.focus();
         feedback.classList.remove('text-danger');
         feedback.classList.add('text-success');
         feedback.textContent = translate('success');
@@ -133,6 +134,7 @@ export default (elements, translate, state) => {
       case 'failure':
         submitButton.disabled = false;
         input.readOnly = false;
+        input.focus();
         feedback.classList.remove('text-success');
         feedback.classList.add('text-danger');
         feedback.textContent = translate(error);
@@ -147,6 +149,7 @@ export default (elements, translate, state) => {
     if (error) {
       feedback.textContent = translate(error);
       feedback.classList.add('text-danger');
+      input.focus();
     }
     renderInput(valid);
   };
