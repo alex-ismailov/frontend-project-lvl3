@@ -154,7 +154,6 @@ export default (elements, translate, state) => {
     renderInput(valid);
   };
 
-  // *** watchers ***
   const watchedState = onChange(state, (path, value, previousValue) => {
     switch (path) {
       case 'form':
