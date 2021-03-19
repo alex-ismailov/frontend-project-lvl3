@@ -87,8 +87,7 @@ const fetchNewFeed = (feedUrl, watchedState) => {
     });
 };
 
-const watchFreshPosts = (watchedState, timerId) => {
-  clearTimeout(timerId);
+const watchFreshPosts = (watchedState) => {
   const { feeds } = watchedState.data;
   const promises = feeds
     .map((feed) => axios.get(buildAllOriginsUrl(feed.link), { timeout: TIMEOUT })
@@ -110,7 +109,7 @@ const watchFreshPosts = (watchedState, timerId) => {
 
   Promise.all(promises)
     .finally(() => {
-      const newTimerId = setTimeout(() => watchFreshPosts(watchedState, newTimerId), DELAY);
+      setTimeout(() => watchFreshPosts(watchedState), DELAY);
     });
 };
 
@@ -203,6 +202,6 @@ export default () => {
     });
 
     // контроллер демон watchFreshPosts, запускается один раз на этапе инициализации приложения
-    const timerId = setTimeout(() => watchFreshPosts(watchedState, timerId), DELAY);
+    setTimeout(() => watchFreshPosts(watchedState), DELAY);
   });
 };
