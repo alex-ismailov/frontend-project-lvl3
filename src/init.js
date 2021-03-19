@@ -76,7 +76,6 @@ const fetchNewFeed = (feedUrl, watchedState) => {
       };
     })
     .catch((e) => {
-      // console.log(e); // for debugging
       const error = e.message === 'notValidRssFormat'
         ? 'errors.notValidRssFormat'
         : 'errors.networkError';
@@ -113,7 +112,6 @@ const watchFreshPosts = (watchedState) => {
     });
 };
 
-// *** MODEL ***
 export default () => {
   const i18nextInstance = i18next.createInstance();
   return i18nextInstance.init({
@@ -156,10 +154,6 @@ export default () => {
 
     const watchedState = buildWatchedState(elements, translate, state);
 
-    // *** VIEW ***
-    // look at src/js/view.js
-    // ************
-
     const validate = (value, currentFeeds) => {
       const expandedScheme = schema
         .notOneOf(currentFeeds);
@@ -172,7 +166,6 @@ export default () => {
       }
     };
 
-    // *** CONTROLLERS ***
     elements.form.addEventListener('submit', (e) => {
       e.preventDefault();
       const { value } = e.target.elements.url;
@@ -201,7 +194,6 @@ export default () => {
       watchedState.uiState.modal.currentPostId = id;
     });
 
-    // контроллер демон watchFreshPosts, запускается один раз на этапе инициализации приложения
     setTimeout(() => watchFreshPosts(watchedState), DELAY);
   });
 };
