@@ -52,11 +52,11 @@ afterAll(() => {
 beforeEach(() => {
   document.body.innerHTML = initHtml;
 
-  init();
-
-  elements.input = screen.getByRole('textbox', { name: 'url' });
-  elements.submit = screen.getByRole('button', { name: 'add' });
-  elements.feedback = screen.getByTestId('feedback');
+  init().then(() => {
+    elements.input = screen.getByRole('textbox', { name: 'url' });
+    elements.submit = screen.getByRole('button', { name: 'add' });
+    elements.feedback = screen.getByTestId('feedback');
+  });
 });
 
 describe('Main flow', () => {
