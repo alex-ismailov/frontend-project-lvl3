@@ -38,6 +38,11 @@ const htmlUrl = 'https://ru.hexlet.io';
 const index = path.join(__dirname, '..', 'index.html');
 const initHtml = fs.readFileSync(index, 'utf-8');
 
+const nockHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-credentials': 'true',
+};
+
 const elements = {};
 
 beforeAll(() => {
@@ -62,10 +67,7 @@ beforeEach(() => {
 describe('Main flow', () => {
   test('adding', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
@@ -77,10 +79,7 @@ describe('Main flow', () => {
 
   test('render feed and posts', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
@@ -97,10 +96,7 @@ describe('Main flow', () => {
 
   test('modal', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
@@ -125,10 +121,7 @@ describe('Validation URL', () => {
 
   test('unique url', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
@@ -147,10 +140,7 @@ describe('Handling of network errors and invalid data', () => {
   test.skip('Network error', async () => {
     const error = { message: 'no internet', isAxiosError: true };
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .replyWithError(error);
@@ -162,10 +152,7 @@ describe('Handling of network errors and invalid data', () => {
 
   test('handling non-rss url', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: htmlUrl, disableCache: 'true' })
       .reply(200, { contents: html });
@@ -179,10 +166,7 @@ describe('Handling of network errors and invalid data', () => {
 describe('Handle disabling ui elements during loading', () => {
   test('handle successful loading loading', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
@@ -199,10 +183,7 @@ describe('Handle disabling ui elements during loading', () => {
 
   test('handle fialed loading', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: htmlUrl, disableCache: 'true' })
       .reply(200, { contents: html });
@@ -232,18 +213,13 @@ describe('Feedback messages colors', () => {
 
   test('success loading', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: rssUrl, disableCache: 'true' })
       .reply(200, { contents: rss1 });
 
     userEvent.type(elements.input, rssUrl);
     userEvent.click(elements.submit);
-    // expect(await screen.findByText(/RSS успешно загружен/i)).not.toHaveClass('text-danger');
-    // expect(elements.feedback).toHaveClass('text-success');
     await waitFor(() => {
       expect(elements.feedback).not.toHaveClass('text-danger');
       expect(elements.feedback).toHaveClass('text-success');
@@ -252,10 +228,7 @@ describe('Feedback messages colors', () => {
 
   test('failed loading', async () => {
     nock(corsProxy)
-      .defaultReplyHeaders({
-        'access-control-allow-origin': '*',
-        'access-control-allow-credentials': 'true',
-      })
+      .defaultReplyHeaders(nockHeaders)
       .get(corsProxyApi)
       .query({ url: htmlUrl, disableCache: 'true' })
       .reply(200, { contents: html });
@@ -263,9 +236,6 @@ describe('Feedback messages colors', () => {
     userEvent.type(elements.input, htmlUrl);
     userEvent.click(elements.submit);
 
-    // expect(await screen.findByText(/Ресурс не содержит валидный RSS/i))
-    // .toHaveClass('text-danger');
-    // expect(elements.feedback).not.toHaveClass('text-success');
     await waitFor(() => {
       expect(elements.feedback).toHaveClass('text-danger');
       expect(elements.feedback).not.toHaveClass('text-success');
